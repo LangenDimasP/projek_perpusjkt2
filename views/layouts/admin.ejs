@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/admin.css">
+    <!-- Tambahkan link CSS lainnya yang diperlukan -->
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Header -->
+        <header>
+            <h1>Admin Dashboard</h1>
+            <!-- Tambahkan elemen header lainnya jika diperlukan -->
+        </header>
+
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <ul>
+                <li><a href="/admin/dashboard">Dashboard</a></li>
+                <li><a href="/admin/schedules">Jadwal</a></li>
+                <li><a href="/admin/create">Buat Jadwal</a></li>
+                <li><a href="/admin/notifications">Notifikasi</a></li>
+                <!-- Tambahkan menu lainnya sesuai kebutuhan -->
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="content">
+            <%- body %>
+        </div>
+    </div>
+
+    <script src="/js/admin.js"></script>
+    <!-- Tambahkan script JS lainnya yang diperlukan -->
+</body>
+</html>

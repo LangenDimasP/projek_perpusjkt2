@@ -1,0 +1,284 @@
+<%- include('../partials/header') %>
+
+<div class="space-y-6">
+    <div>
+        <h2 class="text-3xl font-bold text-gray-800">Ringkasan Dashboard</h2>
+        <p class="text-gray-600">Analisis aktivitas reservasi di sistem Anda.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-white p-6 rounded-lg shadow-md flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500">Total Reservasi</p>
+                <p class="text-3xl font-bold text-gray-800"><%= stats.totalBookings %></p>
+            </div>
+            <div class="bg-blue-100 text-blue-600 p-3 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                </svg>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500">Pengguna Baru (30 Hari)</p>
+                <p class="text-3xl font-bold text-gray-800"><%= stats.newUsers %></p>
+            </div>
+            <div class="bg-green-100 text-green-600 p-3 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                </svg>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500">Rata-rata Booking / Hari</p>
+                <p class="text-3xl font-bold text-gray-800"><%= stats.avgBookings %></p>
+            </div>
+            <div class="bg-yellow-100 text-yellow-600 p-3 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500">Hari Teramai</p>
+                <p class="text-3xl font-bold text-gray-800"><%= stats.busiestDay %></p>
+            </div>
+            <div class="bg-indigo-100 text-indigo-600 p-3 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart pertama diperkecil -->
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <h3 class="font-semibold mb-4">Reservasi 7 Hari Terakhir</h3>
+        <div style="height: 250px; position: relative;">
+            <canvas id="dailyBookingsChart"></canvas>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Chart kedua dan ketiga diperkecil -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="font-semibold mb-4">Komposisi Tipe Booking</h3>
+            <div style="height: 200px; position: relative;">
+                <canvas id="bookingTypeChart"></canvas>
+            </div>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="font-semibold mb-4">5 Event Terpopuler</h3>
+            <div style="height: 200px; position: relative;">
+                <canvas id="popularSessionsChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Chart 1: Line Chart (Daily Bookings) - Diperkecil
+        const dailyCtx = document.getElementById('dailyBookingsChart');
+        if (dailyCtx) {
+            new Chart(dailyCtx, {
+                type: 'line',
+                data: {
+                    labels: <%- dailyLabels %>,
+                    datasets: [{
+                        label: 'Jumlah Reservasi', 
+                        data: <%- dailyData %>,
+                        borderColor: '#3B82F6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#3B82F6',
+                        pointBorderColor: '#FFFFFF',
+                        pointBorderWidth: 3,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                            titleColor: '#374151',
+                            bodyColor: '#374151',
+                            borderColor: '#E5E7EB',
+                            borderWidth: 1,
+                            cornerRadius: 8,
+                            displayColors: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            border: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#9CA3AF',
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: '#F3F4F6',
+                                borderDash: [5, 5]
+                            },
+                            border: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#9CA3AF',
+                                font: {
+                                    size: 12
+                                },
+                                precision: 0
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Chart 2: Pie Chart (Booking Types) - Diperkecil
+        const typeCtx = document.getElementById('bookingTypeChart');
+        if (typeCtx) {
+            new Chart(typeCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: <%- typeLabels %>,
+                    datasets: [{
+                        label: 'Tipe Booking', 
+                        data: <%- typeData %>,
+                        backgroundColor: ['#3B82F6', '#60A5FA'],
+                        borderColor: ['#FFFFFF', '#FFFFFF'],
+                        borderWidth: 4,
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                                font: {
+                                    size: 11
+                                },
+                                color: '#374151'
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                            titleColor: '#374151',
+                            bodyColor: '#374151',
+                            borderColor: '#E5E7EB',
+                            borderWidth: 1,
+                            cornerRadius: 8
+                        }
+                    }
+                }
+            });
+        }
+
+        // Chart 3: Bar Chart (Popular Sessions) - Diperkecil
+        const popularCtx = document.getElementById('popularSessionsChart');
+        if (popularCtx) {
+            new Chart(popularCtx, {
+                type: 'bar',
+                data: {
+                    labels: <%- popularLabels %>,
+                    datasets: [{
+                        label: 'Total Reservasi', 
+                        data: <%- popularData %>,
+                        backgroundColor: '#3B82F6',
+                        borderColor: '#3B82F6',
+                        borderRadius: 8,
+                        borderSkipped: false,
+                        borderWidth: 1
+                    }]
+                },
+                options: { 
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                            titleColor: '#374151',
+                            bodyColor: '#374151',
+                            borderColor: '#E5E7EB',
+                            borderWidth: 1,
+                            cornerRadius: 8,
+                            displayColors: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: {
+                                color: '#F3F4F6',
+                                borderDash: [5, 5]
+                            },
+                            border: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#9CA3AF',
+                                font: {
+                                    size: 11
+                                },
+                                precision: 0
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: false
+                            },
+                            border: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#9CA3AF',
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
+
+<%- include('../partials/footer') %>

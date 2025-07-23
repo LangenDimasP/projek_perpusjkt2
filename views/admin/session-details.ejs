@@ -1,0 +1,61 @@
+<%- include('../partials/header') %>
+<%- include('../partials/back-button') %>
+
+<h2 class="text-3xl font-bold mb-2">Daftar Pengunjung</h2>
+<p class="text-lg text-gray-600 mb-6">Sesi: <%= new Date(session.start_time).toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' }) %></p>
+
+<div class="mb-8">
+    <h3 class="text-xl font-semibold mb-4 text-blue-700">Pengunjung Jalur Publik</h3>
+    <div class="bg-white p-4 rounded-lg shadow-md overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead>
+                <tr>
+                    <th class="px-4 py-2 text-left">Nama</th>
+                    <th class="px-4 py-2 text-left">Email</th>
+                    <th class="px-4 py-2 text-left">Kode Reservasi</th>
+                    <th class="px-4 py-2 text-left">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% attendees.filter(p => p.booking_type === 'PUBLIC').forEach(attendee => { %>
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-2"><%= attendee.user_name %></td>
+                        <td class="px-4 py-2"><%= attendee.user_email %></td>
+                        <td class="px-4 py-2 font-mono"><%= attendee.reservation_code %></td>
+                        <td class="px-4 py-2"><%= attendee.status %></td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div>
+    <h3 class="text-xl font-semibold mb-4 text-indigo-700">Pengunjung Jalur Internal</h3>
+    <div class="bg-white p-4 rounded-lg shadow-md overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead>
+                <tr>
+                    <th class="px-4 py-2 text-left">Nama</th>
+                    <th class="px-4 py-2 text-left">Email</th>
+                    <th class="px-4 py-2 text-left">Kode Reservasi</th>
+                    <th class="px-4 py-2 text-left">Status</th>
+                    <th class="px-4 py-2 text-left">Dialokasikan oleh (PIC)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% attendees.filter(p => p.booking_type === 'INTERNAL').forEach(attendee => { %>
+                     <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-2"><%= attendee.user_name %></td>
+                        <td class="px-4 py-2"><%= attendee.user_email %></td>
+                        <td class="px-4 py-2 font-mono"><%= attendee.reservation_code %></td>
+                        <td class="px-4 py-2"><%= attendee.status %></td>
+                        <td class="px-4 py-2 font-semibold"><%= attendee.pic_name %></td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>

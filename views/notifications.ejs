@@ -1,0 +1,81 @@
+<%- include('partials/header') %>
+<%- include('./partials/back-button') %>
+<div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">Notifikasi</h1>
+    <div class="flex items-center space-x-4 mt-4 md:mt-0">
+        <select id="typeFilter" class="p-2 border border-gray-300 rounded-md shadow-sm bg-white focus:ring-blue-500 focus:border-blue-500">
+            <option value="all" <%= filters.type === 'all' ? 'selected' : '' %>>Semua Jenis</option>
+            <option value="booking" <%= filters.type === 'booking' ? 'selected' : '' %>>Reservasi</option>
+            <option value="checkin" <%= filters.type === 'checkin' ? 'selected' : '' %>>Check-in</option>
+        </select>
+        <select id="dateFilter" class="p-2 border border-gray-300 rounded-md shadow-sm bg-white focus:ring-blue-500 focus:border-blue-500">
+            <option value="all" <%= filters.date === 'all' ? 'selected' : '' %>>Semua Waktu</option>
+            <option value="today" <%= filters.date === 'today' ? 'selected' : '' %>>Hari Ini</option>
+            <option value="week" <%= filters.date === 'week' ? 'selected' : '' %>>7 Hari Terakhir</option>
+        </select>
+    </div>
+</div>
+
+<div class="space-y-4">
+    <% if (notifications.length > 0) { %>
+        <% notifications.forEach(notif => { %>
+            <%
+                let iconSVG = '';
+                let iconBgColor = !notif.is_read ? 'bg-blue-500' : 'bg-gray-400';
+                if (notif.message.includes('berhasil dibuat')) {
+                    // Ticket Icon
+                    iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-white"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 010 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 010-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375z" /></svg>`;
+                } else if (notif.message.includes('berhasil di-scan')) {
+                    // Check Badge Icon
+                    iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-white"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+                    if (!notif.is_read) iconBgColor = 'bg-green-500';
+                } else {
+                    // Default Bell Icon
+                    iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-white"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" /></svg>`;
+                }
+            %>
+            <a href="<%= notif.link || '#' %>" class="block bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                <div class="flex items-center p-4">
+                    <div class="flex-shrink-0 w-16 h-16 rounded-full flex items-center justify-center <%= iconBgColor %>">
+                        <%- iconSVG %>
+                    </div>
+                    <div class="ml-4 flex-grow">
+                        <p class="text-gray-800 font-semibold"><%= notif.message %></p>
+                        <p class="text-sm text-gray-500 mt-1">
+                            <%= new Date(notif.created_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) %>
+                        </p>
+                    </div>
+                    <% if (!notif.is_read) { %>
+                        <div class="flex-shrink-0 w-3 h-3 bg-blue-500 rounded-full ml-4 animate-pulse"></div>
+                    <% } %>
+                </div>
+            </a>
+        <% }) %>
+    </div>
+<% } else { %>
+    <div class="text-center bg-white p-12 rounded-lg shadow-md">
+        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+        </svg>
+        <p class="mt-4 text-lg text-gray-500">Tidak ada notifikasi yang cocok dengan filter Anda.</p>
+    </div>
+<% } %>
+
+<script>
+    const typeFilter = document.getElementById('typeFilter');
+    const dateFilter = document.getElementById('dateFilter');
+
+    function applyFilters() {
+        const type = typeFilter.value;
+        const date = dateFilter.value;
+        const url = new URL(window.location.origin + window.location.pathname);
+        if (type !== 'all') url.searchParams.set('type', type);
+        if (date !== 'all') url.searchParams.set('date', date);
+        window.location.href = url.toString();
+    }
+
+    typeFilter.addEventListener('change', applyFilters);
+    dateFilter.addEventListener('change', applyFilters);
+</script>
+
+<%- include('partials/footer') %>

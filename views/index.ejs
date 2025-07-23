@@ -1,0 +1,467 @@
+<%- include('partials/header') %>
+
+<!-- Main Header Section -->
+<div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl border border-blue-100">
+    <div class="flex items-center space-x-3">
+        <div class="bg-blue-600 p-3 rounded-xl">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 4l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+        </div>
+        <div>
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800"><%= title %></h1>
+            <p class="text-lg text-gray-600 mt-1 flex items-center">
+                <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Pilih event dan sesi yang Anda inginkan
+            </p>
+        </div>
+    </div>
+    
+    <!-- Enhanced Filter Form -->
+    <form id="filterForm" class="flex flex-col md:flex-row md:items-center md:space-x-3 space-y-3 md:space-y-0 mt-6 md:mt-0">
+        <div class="relative">
+            <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+            </svg>
+            <select name="filter" class="pl-10 pr-4 py-3 border border-gray-300 rounded-xl bg-white shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all">
+                <option value="immersif" <%= currentFilter === 'immersif' ? 'selected' : '' %>>Immersif</option>
+                <option value="others" <%= currentFilter === 'others' ? 'selected' : '' %>>Event Lainnya</option>
+            </select>
+        </div>
+        
+        <div class="relative">
+            <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 4l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <select name="month" class="pl-10 pr-4 py-3 border border-gray-300 rounded-xl bg-white shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all">
+                <% const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"]; %>
+                <% for(let i = 1; i <= 12; i++) { %>
+                    <option value="<%= i %>" <%= currentMonth == i ? 'selected' : '' %>><%= months[i-1] %></option>
+                <% } %>
+            </select>
+        </div>
+        
+        <div class="relative">
+            <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 4l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <select name="year" class="pl-10 pr-4 py-3 border border-gray-300 rounded-xl bg-white shadow-sm hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all">
+                <% const startYear = new Date().getFullYear(); %>
+                <% for(let i = 0; i < 3; i++) { %>
+                    <option value="<%= startYear + i %>" <%= currentYear == (startYear + i) ? 'selected' : '' %>><%= startYear + i %></option>
+                <% } %>
+            </select>
+        </div>
+    </form>
+</div>
+
+<% if (typeof events !== 'undefined' && events.length > 0 && events[0] != null) { %>
+    <div class="space-y-8">
+        <% events.forEach(event => { %>
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 hover:shadow-2xl transition-all duration-300">
+                <!-- Event Header -->
+                <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-8 text-white">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <h2 class="text-3xl md:text-4xl font-bold mb-3"><%= event.name %></h2>
+                            <div class="flex items-center space-x-2 text-blue-100 mb-4">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                                <span class="text-lg"><%= event.location %></span>
+                            </div>
+                            <p class="text-blue-50 text-lg leading-relaxed"><%= event.description %></p>
+                        </div>
+                        <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-4 ml-6">
+                            <svg class="w-12 h-12 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <% if (event.sessions && event.sessions.length > 0) { %>
+                    <div class="p-8">
+                        <div class="flex items-center space-x-3 mb-6">
+                            <div class="bg-green-100 p-2 rounded-xl">
+                                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-800">Pilih Sesi</h3>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <% event.sessions.forEach(session => { %>
+                                <div class="session-card group bg-gradient-to-br from-gray-50 to-white border-2 border-gray-200 rounded-2xl p-6 flex flex-col justify-between transform hover:-translate-y-2 hover:border-blue-300 hover:shadow-xl transition-all duration-300">
+                                    <div class="space-y-4">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="bg-blue-100 p-2 rounded-lg group-hover:bg-blue-200 transition-colors">
+                                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 4l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <p class="font-bold text-gray-800 text-lg"><%= new Date(session.start_time).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' }) %></p>
+                                                <p class="font-semibold text-blue-600"><%= new Date(session.start_time).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) %> WIB</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                                            <div class="flex items-center space-x-2">
+                                                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                                </svg>
+                                                <span class="text-amber-700 font-medium">Sisa Kuota:</span>
+                                                <span class="font-bold text-amber-900 quota-display"><%= session.public_quota %></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-6">
+                                        <% if (user) { %>
+                                            <% if (session.public_quota > 0) { %>
+                                                <% if (session.status === 'UPCOMING' && new Date(session.booking_open_time) > new Date()) { %>
+                                                    <div class="countdown-container bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 p-4 rounded-xl text-center" data-open-time="<%= new Date(session.booking_open_time).toISOString() %>" data-session-id="<%= session.id %>">
+                                                        <div class="flex items-center justify-center space-x-2 mb-2">
+                                                            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                            </svg>
+                                                            <p class="text-amber-700 font-medium">Dibuka dalam:</p>
+                                                        </div>
+                                                        <p class="countdown-timer font-bold text-2xl text-amber-900"></p>
+                                                    </div>
+                                                    <button id="button-<%= session.id %>" data-session-id="<%= session.id %>" class="reserve-button hidden mt-4 w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:from-green-700 hover:to-emerald-700 transform hover:scale-105 transition-all duration-200 flex items-center justify-center space-x-2">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                                        </svg>
+                                                        <span>Reservasi Sekarang</span>
+                                                    </button>
+                                                <% } else { %>
+                                                    <button data-session-id="<%= session.id %>" class="reserve-button w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:from-green-700 hover:to-emerald-700 transform hover:scale-105 transition-all duration-200 flex items-center justify-center space-x-2">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                                        </svg>
+                                                        <span>Reservasi Sekarang</span>
+                                                    </button>
+                                                <% } %>
+                                            <% } else { %>
+                                                <div class="w-full bg-gradient-to-r from-gray-300 to-gray-400 text-gray-600 font-bold py-3 px-6 rounded-xl cursor-not-allowed flex items-center justify-center space-x-2">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728"/>
+                                                    </svg>
+                                                    <span>Kuota Habis</span>
+                                                </div>
+                                            <% } %>
+                                        <% } else { %>
+                                            <a href="/auth/login" class="w-full block bg-gradient-to-r from-gray-500 to-gray-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:from-gray-600 hover:to-gray-700 transform hover:scale-105 transition-all duration-200 text-center flex items-center justify-center space-x-2">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                                                </svg>
+                                                <span>Login untuk Reservasi</span>
+                                            </a>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        </div>
+                    </div>
+                <% } else { %>
+                    <div class="p-8 text-center">
+                        <div class="bg-gray-50 rounded-2xl p-12">
+                            <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <p class="text-xl text-gray-500 italic">Belum ada sesi yang tersedia untuk filter ini.</p>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        <% }) %>
+    </div>
+<% } else { %>
+    <div class="text-center py-24">
+        <div class="bg-gray-50 rounded-3xl p-16 max-w-2xl mx-auto">
+            <svg class="w-20 h-20 text-gray-400 mx-auto mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.291-1.1-5.5-2.709"/>
+            </svg>
+            <p class="text-2xl text-gray-500 font-medium">Tidak ada jadwal reservasi yang ditemukan untuk filter ini.</p>
+        </div>
+    </div>
+<% } %>
+
+<!-- Enhanced Modals -->
+<div id="confirmationModal" class="fixed inset-0 w-full h-full bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center hidden z-50 p-4">
+    <div class="bg-white rounded-3xl p-8 max-w-2xl w-full shadow-2xl transform scale-95">
+        <div id="confirmationModalContent"></div>
+    </div>
+</div>
+
+<div id="successModal" class="fixed inset-0 w-full h-full bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center hidden z-50 p-4">
+    <div class="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-2xl">
+        <div class="flex justify-center mb-6">
+            <div class="bg-green-100 p-4 rounded-full">
+                <svg class="w-16 h-16 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+        </div>
+        <h2 class="text-3xl font-bold mb-4 text-gray-800">Reservasi Berhasil!</h2>
+        <p class="text-gray-600 mb-4">Kode reservasi Anda:</p>
+        <p id="modalReservationCode" class="font-mono bg-gray-100 p-4 rounded-xl text-xl mb-6 border-2 border-dashed border-gray-300"></p>
+        <p class="text-sm text-gray-500 mb-6">Lihat tiket di halaman Riwayat.</p>
+        <button onclick="hideSuccessModal()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200">OK</button>
+    </div>
+</div>
+
+<div id="errorModal" class="fixed inset-0 w-full h-full bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center hidden z-50 p-4">
+    <div class="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-2xl">
+        <div class="flex justify-center mb-6">
+            <div class="bg-red-100 p-4 rounded-full">
+                <svg class="w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+        </div>
+        <h2 class="text-3xl font-bold mb-4 text-gray-800">Reservasi Gagal!</h2>
+        <p class="text-gray-600 mb-6" id="modalErrorMessage"></p>
+        <button onclick="hideErrorModal()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200">Coba Lagi</button>
+    </div>
+</div>
+
+<script>
+    // --- ELEMENT REFERENCES ---
+    const successModal = document.getElementById('successModal');
+    const errorModal = document.getElementById('errorModal');
+    const confirmationModal = document.getElementById('confirmationModal');
+    const confirmationModalContent = document.getElementById('confirmationModalContent');
+    let countdownInterval;
+
+    // --- EVENT LISTENERS ---
+    if (confirmationModal) {
+        confirmationModal.addEventListener('click', function(event) {
+            if (event.target === confirmationModal) {
+                closeConfirmationModal();
+            }
+        });
+    }
+
+    window.addEventListener('load', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const bookingStatus = urlParams.get('booking');
+        if (bookingStatus === 'success') {
+            const code = urlParams.get('code');
+            if (code) showSuccessModal(code);
+        } else if (bookingStatus === 'failed') {
+            const msg = urlParams.get('error');
+            if (msg) showErrorModal(decodeURIComponent(msg));
+        }
+        if (bookingStatus) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+        const pendingSessionId = sessionStorage.getItem('pendingConfirmationSessionId');
+        if (pendingSessionId) {
+            const pendingButton = document.querySelector(`.reserve-button[data-session-id="${pendingSessionId}"]`);
+            if (pendingButton) {
+                openConfirmationModal(pendingSessionId, pendingButton);
+            }
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.countdown-container').forEach(container => {
+            const openTime = new Date(container.dataset.openTime).getTime();
+            const timerElement = container.querySelector('.countdown-timer');
+            const buttonElement = document.getElementById(`button-${container.dataset.sessionId}`);
+            const interval = setInterval(() => {
+                const distance = openTime - new Date().getTime();
+                if (distance < 0) {
+                    clearInterval(interval);
+                    if (container) container.style.display = 'none';
+                    if (buttonElement) buttonElement.style.display = 'block';
+                    return;
+                }
+                const hours = String(Math.floor(distance / (1000 * 60 * 60))).padStart(2, '0');
+                const minutes = String(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+                const seconds = String(Math.floor((distance % (1000 * 60)) / 1000)).padStart(2, '0');
+                if (timerElement) timerElement.innerHTML = `${hours}:${minutes}:${seconds}`;
+            }, 1000);
+        });
+
+        document.querySelectorAll('.reserve-button').forEach(button => {
+            button.addEventListener('click', (event) => {
+                const sessionId = button.dataset.sessionId;
+                openConfirmationModal(sessionId, event.currentTarget);
+            });
+        });
+    });
+
+    // --- FUNCTIONS ---
+    function hideSuccessModal() { if(successModal) successModal.classList.add('hidden'); }
+    function hideErrorModal() { if(errorModal) errorModal.classList.add('hidden'); }
+    function showSuccessModal(code) { document.getElementById('modalReservationCode').textContent = code; if(successModal) successModal.classList.remove('hidden'); }
+    function showErrorModal(message) { document.getElementById('modalErrorMessage').textContent = message; if(errorModal) errorModal.classList.remove('hidden'); }
+    
+    async function openConfirmationModal(sessionId, buttonElement) {
+        if (!sessionId) {
+        showErrorModal('Session ID tidak valid.');
+        return;
+    }
+        const allBookingButtons = document.querySelectorAll('.reserve-button');
+        try {
+            allBookingButtons.forEach(btn => btn.disabled = true);
+            console.log('Session ID:', sessionId);
+            const response = await fetch(`/api/session/${sessionId}`);
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.message || 'Gagal memuat detail sesi.');
+            }
+            const { session, bookingExpires } = await response.json();
+            sessionStorage.setItem('pendingConfirmationSessionId', sessionId);
+
+            confirmationModalContent.innerHTML = `
+                <div class="text-center mb-8">
+                    <div class="bg-blue-100 p-4 rounded-full inline-block mb-4">
+                        <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <h2 class="text-3xl font-bold text-gray-800">Konfirmasi Reservasi Anda</h2>
+                </div>
+                <div id="timer-container" class="text-center mb-8 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 p-6 rounded-xl">
+                    <div class="flex items-center justify-center space-x-2 mb-2">
+                        <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span class="text-amber-700 font-medium">Selesaikan konfirmasi dalam:</span>
+                    </div>
+                    <div id="countdown-timer" class="font-bold text-3xl text-amber-900"></div>
+                </div>
+                <div class="bg-gradient-to-r from-gray-50 to-blue-50 border border-gray-200 p-6 mb-8 rounded-xl">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 4l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span class="font-semibold text-gray-700">Waktu Mulai:</span>
+                        </div>
+                        <span class="font-bold text-gray-900">${new Date(session.start_time).toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' })}</span>
+                    </div>
+                </div>
+                <form id="bookingForm">
+                    <button id="confirm-button" type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-4 px-6 rounded-xl text-lg hover:from-blue-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200 flex items-center justify-center space-x-2">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span>Konfirmasi Reservasi</span>
+                    </button>
+                </form>
+                <div class="text-center mt-6">
+                    <button onclick="closeConfirmationModal()" class="text-gray-500 hover:text-gray-700 hover:underline transition-colors duration-200 flex items-center justify-center space-x-2 mx-auto">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        <span>Batal</span>
+                    </button>
+                </div>
+            `;
+            
+            confirmationModal.classList.remove('hidden');
+            startCountdown(bookingExpires);
+            
+            document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const confirmButton = document.getElementById('confirm-button');
+                confirmButton.disabled = true;
+                confirmButton.innerHTML = `
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Memproses...</span>
+                `;
+
+                const postResponse = await fetch('/booking/' + sessionId, { method: 'POST' });
+                const result = await postResponse.json();
+                closeConfirmationModal();
+                if (postResponse.ok) {
+                    showSuccessModal(result.code);
+                    updateUIAfterBooking(buttonElement);
+                } else {
+                    showErrorModal(result.message);
+                }
+            });
+        } catch (error) {
+            showErrorModal(error.message);
+        } finally {
+            allBookingButtons.forEach(btn => btn.disabled = false);
+        }
+    }
+
+    function closeConfirmationModal() {
+        sessionStorage.removeItem('pendingConfirmationSessionId');
+        clearInterval(countdownInterval);
+        if (confirmationModal) confirmationModal.classList.add('hidden');
+    }
+
+    function startCountdown(expirationTime) {
+        const countdownElement = document.getElementById('countdown-timer');
+        const update = () => {
+            const distance = expirationTime - Date.now();
+            if (distance < 0) {
+                clearInterval(countdownInterval);
+                closeConfirmationModal();
+                showErrorModal('Waktu konfirmasi habis.');
+            } else {
+                const minutes = String(Math.floor((distance / (1000 * 60)) % 60)).padStart(2, '0');
+                const seconds = String(Math.floor((distance / 1000) % 60)).padStart(2, '0');
+                if (countdownElement) countdownElement.textContent = `${minutes}:${seconds}`;
+            }
+        };
+        update();
+        countdownInterval = setInterval(update, 1000);
+    }
+
+    function updateUIAfterBooking(buttonElement) {
+        const card = buttonElement.closest('.session-card');
+        if (card) {
+            const quotaDisplay = card.querySelector('.quota-display');
+            if (quotaDisplay) {
+                let currentQuota = parseInt(quotaDisplay.textContent, 10);
+                if (!isNaN(currentQuota) && currentQuota > 0) {
+                    quotaDisplay.textContent = currentQuota - 1;
+                    if (currentQuota - 1 === 0) {
+                        buttonElement.parentElement.innerHTML = `
+                            <div class="w-full bg-gradient-to-r from-gray-300 to-gray-400 text-gray-600 font-bold py-3 px-6 rounded-xl cursor-not-allowed flex items-center justify-center space-x-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728"/>
+                                </svg>
+                                <span>Kuota Habis</span>
+                            </div>
+                        `;
+                    }
+                }
+            }
+        }
+        const badge = document.getElementById('unread-count-badge');
+        if (badge) {
+            let currentCount = parseInt(badge.textContent, 10) || 0;
+            badge.textContent = currentCount + 1;
+            badge.classList.remove('hidden');
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterForm = document.getElementById('filterForm');
+        filterForm.querySelectorAll('select').forEach(select => {
+            select.addEventListener('change', function() {
+                filterForm.submit();
+            });
+        });
+    });
+</script>
+
+<%- include('partials/footer') %>

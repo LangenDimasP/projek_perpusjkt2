@@ -1,0 +1,113 @@
+<%- include('partials/header') %>
+
+<div class="bg-white p-8 rounded-lg shadow-md">
+    <h1 class="text-3xl font-bold text-gray-800"><%= event.name %></h1>
+    <p class="text-gray-600 mt-1"><%= event.location %></p>
+    <p class="mt-4 text-gray-700"><%= event.description %></p>
+
+    <hr class="my-6">
+
+    <div>
+        <h2 class="text-xl font-semibold mb-3">Pilih Waktu</h2>
+        <div id="date-buttons" class="flex flex-wrap gap-3">
+            </div>
+    </div>
+
+    <div class="mt-6">
+        <h2 class="text-xl font-semibold mb-3">Pilih Sesi</h2>
+        <div id="session-cards" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <p class="text-gray-500 col-span-full">Pilih tanggal terlebih dahulu.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const sessionsData = <%- JSON.stringify(sessions) %>;
+        const dateButtonsContainer = document.getElementById('date-buttons');
+        const sessionCardsContainer = document.getElementById('session-cards');
+        let selectedDate = null;
+
+        // 1. Group sessions by date
+        const sessionsByDate = sessionsData.reduce((acc, session) => {
+            const date = new Date(session.start_time).toISOString().split('T')[0];
+            if (!acc[date]) {
+                acc[date] = [];
+            }
+            acc[date].push(session);
+            return acc;
+        }, {});
+
+        // 2. Create date buttons
+        const availableDates = Object.keys(sessionsByDate).sort();
+        availableDates.forEach(dateStr => {
+            const date = new Date(dateStr);
+            const button = document.createElement('button');
+            button.className = 'px-4 py-2 border rounded-lg transition';
+            button.dataset.date = dateStr;
+            button.innerHTML = `
+                <span class="font-semibold">${date.toLocaleDateString('id-ID', { weekday: 'long' })}</span>
+                <span class="block text-sm text-gray-500">${date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+            `;
+            button.onclick = () => selectDate(dateStr);
+            dateButtonsContainer.appendChild(button);
+        });
+
+        // 3. Function to handle date selection
+        function selectDate(dateStr) {
+            selectedDate = dateStr;
+            // Update button styles
+            document.querySelectorAll('#date-buttons button').forEach(btn => {
+                if (btn.dataset.date === dateStr) {
+                    btn.classList.add('bg-blue-600', 'text-white');
+                    btn.classList.remove('bg-white');
+                } else {
+                    btn.classList.remove('bg-blue-600', 'text-white');
+                    btn.classList.add('bg-white');
+                }
+            });
+            renderSessions(dateStr);
+        }
+
+        // 4. Function to render session cards for the selected date
+        function renderSessions(dateStr) {
+            sessionCardsContainer.innerHTML = '';
+            const sessionsForDate = sessionsByDate[dateStr];
+            
+            if (!sessionsForDate || sessionsForDate.length === 0) {
+                 sessionCardsContainer.innerHTML = '<p class="text-gray-500 col-span-full">Tidak ada sesi pada tanggal ini.</p>';
+                 return;
+            }
+
+            sessionsForDate.forEach(session => {
+                const startTime = new Date(session.start_time).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit'});
+                const endTime = new Date(session.end_time).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit'});
+                const isFull = session.public_quota <= 0;
+                
+                const card = document.createElement(isFull ? 'div' : 'a');
+                if (!isFull) {
+                    card.href = `/booking/${session.id}`;
+                }
+                card.className = `p-4 rounded-lg text-center transition ${isFull ? 'bg-red-500 text-white cursor-not-allowed' : 'bg-green-600 text-white hover:bg-green-700'}`;
+                
+                card.innerHTML = `
+                    <p class="font-bold">${startTime}</p>
+                    <p class="text-sm">-</p>
+                    <p class="font-bold">${endTime}</p>
+                    <p class="text-xs mt-2">${isFull ? 'Kuota Penuh' : `Sisa Kuota: ${session.public_quota}`}</p>
+                `;
+                sessionCardsContainer.appendChild(card);
+            });
+        }
+        
+        // Auto-select the first available date
+        if (availableDates.length > 0) {
+            selectDate(availableDates[0]);
+        } else {
+            dateButtonsContainer.innerHTML = '<p class="text-gray-500">Tidak ada jadwal tersedia untuk event ini.</p>';
+            sessionCardsContainer.innerHTML = '';
+        }
+    });
+</script>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,98 @@
+<%- include('../partials/header') %>
+
+<div class="mb-8">
+    <h2 class="text-3xl font-bold mb-2">Daftar Sesi / Jadwal</h2>
+    <p class="text-gray-600">Kelola sesi: edit jam, hapus sesi, dsb.</p>
+</div>
+
+<table class="min-w-full bg-white rounded-xl shadow overflow-hidden">
+    <thead>
+        <tr class="bg-blue-50 text-blue-900">
+            <th class="py-3 px-4 text-left">Event</th>
+            <th class="py-3 px-4 text-left">Mulai</th>
+            <th class="py-3 px-4 text-left">Selesai</th>
+            <th class="py-3 px-4 text-left">Reservasi Dibuka</th>
+            <th class="py-3 px-4 text-left">Aksi</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% sessions.forEach(session => { %>
+        <tr class="border-b">
+            <td class="py-2 px-4"><%= session.event_name || '-' %></td>
+            <td class="py-2 px-4">
+                <%= session.start_time ? (new Date(session.start_time).toString() !== "Invalid Date" ? new Date(session.start_time).toLocaleString('id-ID') : '-') : '-' %>
+            </td>
+            <td class="py-2 px-4">
+                <%= session.end_time ? (new Date(session.end_time).toString() !== "Invalid Date" ? new Date(session.end_time).toLocaleString('id-ID') : '-') : '-' %>
+            </td>
+            <td class="py-2 px-4">
+                <%= session.booking_open_time ? (new Date(session.booking_open_time).toString() !== "Invalid Date" ? new Date(session.booking_open_time).toLocaleString('id-ID') : '-') : '-' %>
+            </td>
+            <td class="py-2 px-4 space-x-2">
+                <button 
+                    class="inline-block px-3 py-1 bg-yellow-400 text-white rounded hover:bg-yellow-500"
+                    onclick='openEditModal(<%- JSON.stringify({
+                        id: session.id,
+                        start_time: session.start_time,
+                        end_time: session.end_time,
+                        booking_open_time: session.booking_open_time
+                    }) %>)'
+                >Edit</button>
+                <form action="/admin/manage-schedule/<%= session.id %>?_method=DELETE" method="POST" class="inline">
+                    <button type="submit" onclick="return confirm('Yakin hapus sesi ini?')" class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Hapus</button>
+                </form>
+            </td>
+        </tr>
+        <% }) %>
+    </tbody>
+</table>
+
+<!-- Modal Edit Jadwal -->
+<div id="editModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl shadow-lg p-8 w-full max-w-md relative">
+        <button onclick="closeEditModal()" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl">&times;</button>
+        <h3 class="text-xl font-bold mb-4">Edit Jadwal Sesi</h3>
+        <form id="editForm" method="POST">
+            <input type="hidden" name="_method" value="PUT">
+            <div class="mb-3">
+                <label class="block mb-1 font-medium">Jam Mulai</label>
+                <input type="datetime-local" name="start_time" id="edit_start_time" required class="w-full border rounded px-3 py-2">
+            </div>
+            <div class="mb-3">
+                <label class="block mb-1 font-medium">Jam Selesai</label>
+                <input type="datetime-local" name="end_time" id="edit_end_time" required class="w-full border rounded px-3 py-2">
+            </div>
+            <div class="mb-3">
+                <label class="block mb-1 font-medium">Reservasi Dibuka</label>
+                <input type="datetime-local" name="booking_open_time" id="edit_booking_open_time" required class="w-full border rounded px-3 py-2">
+            </div>
+            <div class="flex justify-end space-x-2">
+                <button type="button" onclick="closeEditModal()" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Batal</button>
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Simpan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function pad2(n) { return n < 10 ? '0' + n : n; }
+function toLocalInput(dt) {
+    if (!dt) return '';
+    const d = new Date(dt);
+    if (d.toString() === "Invalid Date") return '';
+    return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate()) + 'T' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+}
+
+function openEditModal(session) {
+    console.log('Session data:', session); // Debug data sesi
+    document.getElementById('edit_start_time').value = toLocalInput(session.start_time);
+    document.getElementById('edit_end_time').value = toLocalInput(session.end_time);
+    document.getElementById('edit_booking_open_time').value = toLocalInput(session.booking_open_time);
+    document.getElementById('editForm').action = '/admin/manage-schedule/' + session.id + '?_method=PUT';
+    document.getElementById('editModal').classList.remove('hidden');
+}
+function closeEditModal() {
+    document.getElementById('editModal').classList.add('hidden');
+}
+</script>
+<%- include('../partials/footer') %>

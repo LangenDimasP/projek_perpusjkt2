@@ -1,0 +1,236 @@
+<%- include('partials/header') %>
+<%- include('./partials/back-button') %>
+<div class="mb-8">
+    <div class="flex items-center space-x-3 mb-2">
+        <!-- History Icon -->
+        <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <h1 class="text-3xl font-bold text-gray-800">Riwayat Reservasi Anda</h1>
+    </div>
+    <p class="text-gray-500 flex items-center space-x-2">
+        <!-- Document Text Icon -->
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <span>Kelola dan lihat detail semua reservasi Anda</span>
+    </p>
+</div>
+
+<% if (bookings.length > 0) { %>
+    <div class="space-y-6">
+        <% bookings.forEach(booking => { %>
+            <div class="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-100">
+                <div class="p-6 md:p-8">
+                    <div class="flex flex-col md:flex-row gap-6 items-start">
+                        <div class="flex-grow space-y-4">
+                            <!-- Event Header -->
+                            <div class="flex items-start space-x-3">
+                                <div class="flex-shrink-0 p-2 bg-blue-100 rounded-lg">
+                                    <!-- Building Office Icon -->
+                                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
+                                    <h2 class="text-xl md:text-2xl font-bold text-blue-600"><%= booking.event_name %></h2>
+                                    <div class="flex items-center space-x-2 mt-1">
+                                        <!-- Location Marker Icon -->
+                                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        <p class="text-gray-600"><%= booking.location %></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Event Time -->
+                            <div class="flex items-center space-x-2 bg-gray-50 p-3 rounded-lg">
+                                <!-- Calendar Icon -->
+                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <p class="font-semibold text-gray-800"><%= new Date(booking.start_time).toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' }) %></p>
+                            </div>
+                            
+                            <!-- Booking Details -->
+                            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-100">
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-2">
+                                            <!-- Ticket Icon -->
+                                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 11-2-4V7a2 2 0 00-2-2H5z" />
+                                            </svg>
+                                            <span class="font-semibold text-gray-700">Kode Reservasi:</span>
+                                        </div>
+                                        <div class="bg-white border-2 border-dashed border-blue-300 rounded-lg px-3 py-1">
+                                            <span class="font-mono font-bold text-blue-800"><%= booking.reservation_code %></span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-2">
+                                            <!-- Status Icon -->
+                                            <% if (booking.status === 'CONFIRMED') { %>
+                                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            <% } else if (booking.status === 'CHECKED_IN') { %>
+                                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                </svg>
+                                            <% } else if (booking.status === 'CANCELLED') { %>
+                                                <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            <% } %>
+                                            <span class="font-semibold text-gray-700">Status:</span>
+                                        </div>
+                                        <div>
+                                            <% if (booking.status === 'CONFIRMED') { %>
+                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800 border border-green-200">
+                                                    Terkonfirmasi
+                                                </span>
+                                            <% } else if (booking.status === 'CHECKED_IN') { %>
+                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800 border border-blue-200">
+                                                    Sudah Check-in
+                                                </span>
+                                            <% } else if (booking.status === 'CANCELLED') { %>
+                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-red-100 text-red-800 border border-red-200">
+                                                    Dibatalkan
+                                                </span>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- QR Code Button -->
+                        <div class="flex-shrink-0">
+                            <button class="bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-6 rounded-xl hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl"
+                                    onclick="showQRCodeModal('<%= booking.reservation_code %>')">
+                                <!-- QR Code Icon -->
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m9 5.197v1M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                </svg>
+                                <span class="font-semibold">Lihat QR Code</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+<% } else { %>
+    <div class="text-center py-20">
+        <div class="max-w-md mx-auto">
+            <!-- Clipboard List Icon -->
+            <svg class="w-20 h-20 text-gray-400 mx-auto mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            <h3 class="text-xl font-semibold text-gray-600 mb-3">Belum Ada Riwayat Reservasi</h3>
+            <p class="text-gray-500 mb-6">Anda belum memiliki riwayat reservasi. Mulai booking event pertama Anda!</p>
+            <div class="flex items-center justify-center space-x-2 text-blue-600">
+                <!-- Arrow Right Icon -->
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+                <a href="/" class="text-blue-600 hover:text-blue-800 font-medium hover:underline">Lihat Event Tersedia</a>
+            </div>
+        </div>
+    </div>
+<% } %>
+
+<!-- Enhanced QR Code Modal -->
+<div id="qrCodeModal" class="fixed inset-0 w-full h-full bg-black bg-opacity-75 flex justify-center items-center hidden z-50 p-4">
+    <div class="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl">
+        <div class="flex items-center justify-center space-x-2 mb-6">
+            <!-- QR Code Icon -->
+            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m9 5.197v1M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            <h2 class="text-2xl font-bold text-gray-800">QR Code Reservasi</h2>
+        </div>
+        
+        <div class="bg-gray-50 p-4 rounded-xl mb-4">
+            <div id="largeQRCodeContainer" class="flex justify-center items-center"></div>
+        </div>
+        
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-6">
+            <div class="flex items-center justify-center space-x-2 mb-2">
+                <!-- Hashtag Icon -->
+                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+                </svg>
+                <span class="text-sm font-medium text-blue-700">Kode Reservasi:</span>
+            </div>
+            <p id="reservationCodeDisplay" class="font-mono bg-white border-2 border-dashed border-blue-300 text-blue-800 p-2 rounded text-lg font-bold"></p>
+        </div>
+        
+        <div class="space-y-3">
+            <div class="flex items-center justify-center space-x-2 text-sm text-gray-600 bg-yellow-50 p-2 rounded-lg">
+                <!-- Information Circle Icon -->
+                <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Tunjukkan QR code ini saat check-in</span>
+            </div>
+            
+            <button onclick="hideQRCodeModal()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-lg focus:outline-none focus:ring-4 focus:ring-gray-300 transition-all duration-200 flex items-center justify-center space-x-2">
+                <!-- X Icon -->
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <span>Tutup</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+<script>
+    const qrCodeModal = document.getElementById('qrCodeModal');
+    const largeQRCodeContainer = document.getElementById('largeQRCodeContainer');
+    const reservationCodeDisplay = document.getElementById('reservationCodeDisplay');
+    
+    let qrCodeInstance = null;
+
+    function showQRCodeModal(code) {
+        // Hapus QR code lama jika ada
+        largeQRCodeContainer.innerHTML = '';
+        
+        // Buat QR code baru yang besar
+        qrCodeInstance = new QRCode(largeQRCodeContainer, {
+            text: code,
+            width: 200,
+            height: 200,
+            colorDark : "#000000",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.H
+        });
+
+        // Tampilkan kode reservasi di bawah QR code
+        reservationCodeDisplay.textContent = code;
+        
+        // Tampilkan modal
+        qrCodeModal.classList.remove('hidden');
+    }
+
+    function hideQRCodeModal() {
+        // Sembunyikan modal
+        qrCodeModal.classList.add('hidden');
+    }
+
+    // Optional: Tutup modal jika user mengklik di luar area konten modal
+    qrCodeModal.addEventListener('click', function(event) {
+        if (event.target === qrCodeModal) {
+            hideQRCodeModal();
+        }
+    });
+</script>
+
+<%- include('partials/footer') %>

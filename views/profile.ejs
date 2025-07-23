@@ -1,0 +1,115 @@
+<%- include('partials/header') %>
+<%- include('./partials/back-button') %>
+<div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden">
+    <div class="grid grid-cols-1 md:grid-cols-3">
+        
+        <div class="md:col-span-1 bg-gray-50 p-8 border-r border-gray-200 flex flex-col items-center text-center">
+            <div class="w-32 h-32 bg-gray-200 rounded-full flex items-center justify-center mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-20 h-20 text-gray-500">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800"><%= user.name %></h2>
+            <p class="text-gray-500"><%= user.email %></p>
+            
+            <div class="mt-4 inline-flex items-center space-x-2 bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
+                <% if (user.role === 'ADMIN') { %>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd" /></svg>
+                    <span>Administrator</span>
+                <% } else { %>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path d="M10 8a3 3 0 100-6 3 3 0 000 6zM3.465 14.493a1.23 1.23 0 00.41 1.412A9.957 9.957 0 0010 18c2.31 0 4.438-.784 6.131-2.095a1.23 1.23 0 00.41-1.412A9.99 9.99 0 0010 12c-2.31 0-4.438.784-6.131 2.095z" /></svg>
+                    <span>Anggota Terdaftar</span>
+                <% } %>
+            </div>
+        </div>
+
+        <div class="md:col-span-2 p-8 flex flex-col items-center justify-center">
+            <h3 class="text-xl font-semibold text-gray-800">Kode QR Unik Anda</h3>
+            <p class="text-gray-500 mt-1 mb-6">Tunjukkan kode ini kepada PIC untuk alokasi kuota internal.</p>
+            
+            <div id="qrcode" class="p-4 border border-dashed border-gray-300 rounded-lg"></div>
+
+            <button id="download-button" class="mt-4 bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-700 flex items-center justify-center space-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                <span>Unduh QR Code</span>
+            </button>
+
+            <div class="mt-6 w-full max-w-sm">
+                <label for="uniqueId" class="block text-sm font-medium text-gray-700">ID Unik</label>
+                <div class="mt-1 flex rounded-md shadow-sm">
+                    <input type="text" id="uniqueId" value="<%= user.unique_user_id %>" readonly class="flex-1 block w-full rounded-none rounded-l-md border-gray-300 bg-gray-50 px-3 py-2 font-mono">
+                    <button id="copy-button" type="button" class="relative -ml-px inline-flex items-center space-x-2 rounded-r-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                        <span id="copy-text">Salin</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script>
+    const qrcodeContainer = document.getElementById('qrcode');
+    const uniqueId = "<%= user.unique_user_id %>";
+
+    if (qrcodeContainer) {
+        new QRCode(qrcodeContainer, {
+            text: uniqueId,
+            width: 220,
+            height: 220,
+            colorDark : "#000000",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.H
+        });
+    }
+
+    const copyButton = document.getElementById('copy-button');
+    if (copyButton) {
+        copyButton.addEventListener('click', () => {
+            const uniqueIdInput = document.getElementById('uniqueId');
+            const copyText = document.getElementById('copy-text');
+            navigator.clipboard.writeText(uniqueIdInput.value).then(() => {
+                copyText.textContent = 'Tersalin!';
+                setTimeout(() => { copyText.textContent = 'Salin'; }, 2000);
+            });
+        });
+    }
+
+    const downloadButton = document.getElementById('download-button');
+    if (downloadButton) {
+        downloadButton.addEventListener('click', () => {
+            const qrCanvas = qrcodeContainer.querySelector('canvas');
+            if (qrCanvas) {
+                // === LOGIKA BARU UNTUK PADDING PUTIH ===
+                const padding = 20;
+                const paddedCanvas = document.createElement('canvas');
+                const paddedCtx = paddedCanvas.getContext('2d');
+
+                // Atur ukuran canvas baru
+                paddedCanvas.width = qrCanvas.width + padding * 2;
+                paddedCanvas.height = qrCanvas.height + padding * 2;
+
+                // Isi dengan latar belakang putih
+                paddedCtx.fillStyle = '#FFFFFF';
+                paddedCtx.fillRect(0, 0, paddedCanvas.width, paddedCanvas.height);
+
+                // Gambar QR code asli di tengah canvas baru
+                paddedCtx.drawImage(qrCanvas, padding, padding);
+                
+                // Buat link download dari canvas BARU yang sudah ada paddingnya
+                const link = document.createElement('a');
+                link.href = paddedCanvas.toDataURL('image/png');
+                link.download = `qrcode-${uniqueId}.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                alert('Gagal mengunduh QR Code.');
+            }
+        });
+    }
+</script>
+
+<%- include('partials/footer') %>

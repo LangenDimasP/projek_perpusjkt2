@@ -1,0 +1,80 @@
+<%- include('../partials/header') %>
+
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-semibold">Daftar Sesi Terjadwal</h3>
+        <a href="/admin/create" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">+ Buat Baru</a>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Event</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Waktu Mulai</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kuota Terisi</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                <% if (events.length > 0) { %>
+                    <% events.forEach(event => { %>
+                        <% if (event.sessions.length > 0) { %>
+                            <% event.sessions.forEach(session => { %>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900"><%= event.name %></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-500"><%= new Date(session.start_time).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) %></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-gray-500"><%= session.total_quota - (session.public_quota + session.internal_quota) %> / <%= session.total_quota %></td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <a href="/admin/session/<%= session.session_id %>" class="text-indigo-600 hover:text-indigo-900 font-semibold">Lihat Pengunjung</a>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } %>
+                    <% }) %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">Belum ada sesi yang dijadwalkan.</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="successModal" class="fixed inset-0 w-full h-full bg-black bg-opacity-75 flex justify-center items-center hidden z-50">
+    <div class="bg-white rounded-lg p-8 max-w-md w-full text-center">
+        <div class="flex justify-center mb-4">
+            <svg class="w-16 h-16 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+        <h2 class="text-2xl font-bold mb-2">Berhasil!</h2>
+        <p class="text-gray-600 mb-6">Sesi baru telah berhasil ditambahkan.</p>
+        <button onclick="hideSuccessModal()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">
+            OK
+        </button>
+    </div>
+</div>
+<script>
+    const successModal = document.getElementById('successModal');
+
+    function hideSuccessModal() {
+        if(successModal) {
+            successModal.classList.add('hidden');
+            // Bersihkan URL agar popup tidak muncul lagi saat refresh
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    }
+
+    // Cek URL saat halaman dimuat
+    window.addEventListener('load', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const successStatus = urlParams.get('success');
+
+        if (successStatus === 'session_added') {
+            if(successModal) {
+                successModal.classList.remove('hidden');
+            }
+        }
+    });
+</script>
+
+<%- include('../partials/footer') %>

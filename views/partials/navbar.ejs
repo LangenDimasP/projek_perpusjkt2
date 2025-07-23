@@ -1,0 +1,130 @@
+<% const currentPath = path %>
+
+<div x-show="sidebarOpen" @click="sidebarOpen = false" class="fixed inset-0 z-20 bg-blue-500 bg-opacity-50 transition-opacity md:hidden"></div>
+
+<div :class="{'translate-x-0 ease-out': sidebarOpen, '-translate-x-full ease-in': !sidebarOpen}"
+     class="fixed inset-y-0 left-0 z-30 w-64 bg-white text-gray-700 shadow-lg transform transition-transform duration-300 md:relative md:translate-x-0 md:flex md:flex-col">
+    
+    <div class="flex flex-col items-center justify-center p-4 border-b">
+    <img src="/images/Logo.png" alt="Logo Aplikasi" class="h-16 w-auto"> 
+</div>
+
+    <nav class="flex-1 px-4 py-4 space-y-2">
+        <a href="/" class="flex items-center px-3 py-2 rounded-lg transition-colors duration-200 
+            <%= (currentPath === '/' || currentPath.startsWith('/?')) ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-gray-200' %>">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-3"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h7.5" /></svg>
+            <span>Beranda</span>
+        </a>
+
+        <% if (user) { %>
+            <a href="/profile" class="flex items-center px-3 py-2 rounded-lg transition-colors duration-200 
+                <%= currentPath === '/profile' ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-gray-200' %>">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-3"><path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                <span>Profil Saya</span>
+            </a>
+            <a href="/history" class="flex items-center px-3 py-2 rounded-lg transition-colors duration-200 
+                <%= currentPath === '/history' ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-gray-200' %>">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <span>Riwayat</span>
+            </a>
+            <a href="/notifications" class="hidden md:flex items-center justify-between px-3 py-2 rounded-lg transition-colors duration-200 
+    <%= currentPath.startsWith('/notifications') ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-gray-200' %>">
+    <div class="flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-3"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" /></svg>
+        <span>Notifikasi</span>
+    </div>
+    <% if (unreadNotifications > 0) { %>
+        <span id="unread-count-badge" class="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center <%= unreadNotifications > 0 ? '' : 'hidden' %>">
+            <%= unreadNotifications %>
+        </span>
+    <% } %>
+</a>
+
+            <hr class="my-4 border-gray-200">
+
+            <% if (user.role === 'ADMIN') { %>
+                <a href="/admin/dashboard" class="flex items-center px-3 py-2 rounded-lg transition-colors duration-200 
+                    <%= currentPath === '/admin/dashboard' ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-gray-200' %>">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-3"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" /></svg>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/admin/create" class="flex items-center px-3 py-2 rounded-lg transition-colors duration-200 
+                    <%= currentPath === '/admin/create' ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-gray-200' %>">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <span>Buat Jadwal</span>
+                </a>
+                <a href="/admin/schedules" class="flex items-center px-3 py-2 rounded-lg transition-colors duration-200 
+    <%= currentPath === '/admin/schedules' ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-gray-200' %>">
+    
+    <!-- SVG baru -->
+    <svg class="w-6 h-6 mr-3 text-current" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M19.8978 16H7.89778C6.96781 16 6.50282 16 6.12132 16.1022C5.08604 16.3796 4.2774 17.1883 4 18.2235" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M8 7H16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M8 10.5H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M19.5 19H8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M10 22C7.17157 22 5.75736 22 4.87868 21.1213C4 20.2426 4 18.8284 4 16V8C4 5.17157 4 3.75736 4.87868 2.87868C5.75736 2 7.17157 2 10 2H14C16.8284 2 18.2426 2 19.1213 2.87868C20 3.75736 20 5.17157 20 8M14 22C16.8284 22 18.2426 22 19.1213 21.1213C20 20.2426 20 18.8284 20 16V12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+
+    <span>Daftar Sesi</span>
+</a>
+<a href="/admin/manage-schedule" class="flex items-center px-3 py-2 rounded-lg transition-colors duration-200 
+    <%= currentPath === '/admin/manage-schedule' ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-gray-200' %>">
+    <svg class="w-6 h-6 mr-3 text-current" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2zM12 17v-4m0 0H8m4 0h4"/>
+    </svg>
+    <span>Manage Jadwal</span>
+</a>
+
+            <% } %>
+            <% if (user.role === 'PIC') { %>
+                <a href="/pic/dashboard" class="flex items-center px-3 py-2 rounded-lg transition-colors duration-200 
+    <%= currentPath === '/pic/dashboard' ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-gray-200' %>">
+  
+  <svg class="w-6 h-6 mr-3 text-current" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+    <path d="M4,4h6v6H4V4M20,4v6H14V4h6M14,15h2V13H14V11h2v2h2V11h2v2H18v2h2v3H18v2H16V18H13v2H11V16h3V15m2,0v3h2V15H16M4,20V14h6v6H4M6,6V8H8V6H6M16,6V8h2V6H16M6,16v2H8V16H6M4,11H6v2H4V11m5,0h4v4H11V13H9V11m2-5h2v4H11V6M2,2V6H0V2A2,2,0,0,1,2,0H6V2H2M22,0a2,2,0,0,1,2,2V6H22V2H18V0h4M2,18v4H6v2H2a2,2,0,0,1-2-2V18H2m20,4V18h2v4a2,2,0,0,1-2,2H18V22Z"/>
+  </svg>
+
+  <span>PIC Dashboard</span>
+</a>
+<a href="/pic/history" class="flex items-center px-3 py-2 rounded-lg transition-colors duration-200 
+        <%= currentPath === '/pic/history' ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-gray-200' %>">
+        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+        <span>Riwayat Alokasi</span>
+    </a>
+
+            <% } %>
+            <% if (user.role === 'KIOSK') { %>
+                <a href="/kiosk/checkin" class="flex items-center px-3 py-2 rounded-lg transition-colors duration-200 
+                    <%= currentPath === '/kiosk/checkin' ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-gray-200' %>">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-3"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.5v15h16.5v-15H3.75zM12 9v6m-3-3h6" /></svg>
+                    <span>Kiosk Check-in</span>
+                </a>
+                <a href="/kiosk/history" class="flex items-center px-3 py-2 rounded-lg ...
+        <%= currentPath === '/kiosk/history' ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-gray-200' %>">
+        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+        <span>Riwayat Check-in</span>
+    </a>
+            <% } %>
+        <% } else { %>
+            <a href="/auth/login" class="flex items-center px-3 py-2 rounded-lg transition-colors duration-200 
+                <%= currentPath === '/auth/login' ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-gray-200' %>">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-3"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" /></svg>
+                <span>Login</span>
+            </a>
+            <a href="/auth/register" class="flex items-center px-3 py-2 rounded-lg transition-colors duration-200 
+                <%= currentPath === '/auth/register' ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-gray-200' %>">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.5 21h-5.25A12.318 12.318 0 014 19.235z" /></svg>
+                <span>Register</span>
+            </a>
+        <% } %>
+    </nav>
+    
+    <% if (user) { %>
+        <div class="p-4 border-t border-gray-200">
+            <a href="/auth/logout" class="flex items-center w-full px-3 py-2 rounded-lg transition-colors duration-200 text-red-500 hover:bg-red-100">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-3"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" /></svg>
+                <span>Logout</span>
+            </a>
+        </div>
+    <% } %>
+</div>
