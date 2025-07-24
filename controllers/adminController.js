@@ -58,27 +58,30 @@ exports.showDashboard = async (req, res) => {
 // Menampilkan halaman daftar semua sesi terjadwal
 exports.showSchedulesPage = async (req, res) => {
     try {
-        const results = await Event.getWithSessions();
-        const events = {};
-        
-        results.forEach(row => {
-            if (!events[row.event_id]) {
-                events[row.event_id] = { 
-                    id: row.event_id, 
-                    name: row.event_name, 
-                    sessions: [] 
-                };
-            }
-            if (row.session_id) {
-                events[row.event_id].sessions.push(row);
-            }
-        });
-        const eventsArray = Object.values(events);
+        const page = parseInt(req.query.page, 10) || 1;
+        const filters = {
+    query: req.query.query || '',
+    eventId: req.query.eventId || 'all',
+    date: req.query.date || ''
+};
 
-        res.render('admin/schedules', { 
+        const sessions = await Session.getPaginated(filters);
+        const totalItems = await Session.countAll(filters);
+        const totalPages = Math.ceil(totalItems / 8);
+        const events = await Event.getAll();
+
+        if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
+            return res.render('admin/partials/schedules-table', { sessions, events, currentPage: page, totalPages });
+        }
+        
+        res.render('admin/schedules', {
             title: 'Daftar Sesi Terjadwal',
-            events: eventsArray,
-            path: req.originalUrl
+            path: req.originalUrl,
+            sessions,
+            events,
+            currentPage: page,
+            totalPages,
+            filters
         });
     } catch (error) {
         console.error(error);
@@ -163,21 +166,180 @@ exports.createSession = async (req, res) => {
 exports.showSessionDetails = async (req, res) => {
     try {
         const sessionId = req.params.id;
+        const page = parseInt(req.query.page, 10) || 1;
+        
         const session = await Session.findById(sessionId);
-        const attendees = await Session.getAttendeesById(sessionId);
-
         if (!session) {
             return res.status(404).send('Sesi tidak ditemukan.');
         }
 
+        // Ambil data pengunjung untuk halaman saat ini
+        const attendees = await Session.getAttendeesByIdPaginated(sessionId, page);
+        // Ambil total data pengunjung untuk menghitung total halaman
+        const totalItems = await Session.countAttendeesById(sessionId);
+        const totalPages = Math.ceil(totalItems / 10);
+
         res.render('admin/session-details', {
             title: `Detail Sesi`,
+            path: req.originalUrl,
             session,
             attendees,
-            path: req.originalUrl
+            currentPage: page,
+            totalPages // <-- Pastikan variabel ini dikirim ke view
         });
     } catch (error) {
         console.error(error);
         res.status(500).send("Server Error");
+    }
+};
+exports.showSessionEditPage = async (req, res) => {
+    try {
+        const session = await Session.findById(req.params.id);
+        const events = await Event.getAll(); // For the dropdown
+        if (!session) {
+            return res.status(404).send('Sesi tidak ditemukan.');
+        }
+        res.render('admin/edit-session', {
+            title: 'Edit Sesi',
+            path: req.originalUrl,
+            session,
+            events
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Server Error');
+    }
+};
+
+exports.showManagePage = async (req, res) => {
+    try {
+        const results = await Event.getWithSessions();
+        // Logika untuk mengelompokkan sesi di bawah event
+        const eventsMap = new Map();
+        results.forEach(row => {
+            if (!eventsMap.has(row.event_id)) {
+                eventsMap.set(row.event_id, {
+                    id: row.event_id,
+                    name: row.event_name,
+                    sessions: []
+                });
+            }
+            if (row.session_id) {
+                eventsMap.get(row.event_id).sessions.push(row);
+            }
+        });
+        const eventsArray = Array.from(eventsMap.values());
+
+        res.render('admin/manage', {
+            title: 'Kelola Jadwal',
+            path: req.originalUrl,
+            events: eventsArray
+        });
+    } catch (error) {
+        console.error("Error fetching management page data:", error);
+        res.status(500).send("Server Error");
+    }
+};
+
+// Menampilkan halaman form untuk mengedit event
+exports.showEventEditPage = async (req, res) => {
+    try {
+        const event = await Event.findById(req.params.id);
+        if (!event) {
+            return res.status(404).send('Event tidak ditemukan.');
+        }
+        res.render('admin/edit-event', { 
+            title: 'Edit Event', 
+            path: req.originalUrl, 
+            event 
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Server Error');
+    }
+};
+
+// Memproses update event
+exports.updateEvent = async (req, res) => {
+    try {
+        await Event.update(req.params.id, req.body);
+        res.redirect('/admin/manage');
+    } catch (error) {
+        console.error(error);
+        res.redirect(`/admin/event/${req.params.id}/edit`);
+    }
+};
+
+// Memproses hapus event
+exports.deleteEvent = async (req, res) => {
+    try {
+        await Event.delete(req.params.id);
+        res.redirect('/admin/manage');
+    } catch (error) {
+        console.error(error);
+        res.redirect('/admin/manage');
+    }
+};
+
+// Menampilkan halaman form untuk mengedit sesi
+exports.showSessionEditPage = async (req, res) => {
+    try {
+        const session = await Session.findById(req.params.id);
+        const events = await Event.getAll();
+        if (!session) {
+            return res.status(404).send('Sesi tidak ditemukan.');
+        }
+        res.render('admin/edit-session', {
+            title: 'Edit Sesi',
+            path: req.originalUrl,
+            session,
+            events,
+            error: req.query.error ? decodeURIComponent(req.query.error) : null
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Server Error');
+    }
+};
+
+// Memproses update sesi (DIPERBARUI)
+exports.updateSession = async (req, res) => {
+    const sessionId = req.params.id;
+    try {
+        // Ambil nilai kuota dari form
+        const public_quota = parseInt(req.body.public_quota) || 0;
+        const internal_quota = req.body.include_internal ? (parseInt(req.body.internal_quota) || 0) : 0;
+        
+        // Hitung total kuota secara otomatis
+        const total_quota = public_quota + internal_quota;
+
+        const sessionData = {
+            event_id: parseInt(req.body.event_id),
+            start_time: req.body.start_time,
+            end_time: req.body.end_time,
+            booking_open_time: req.body.booking_open_time,
+            public_quota: public_quota,
+            internal_quota: internal_quota,
+            total_quota: total_quota, // Gunakan total kuota yang sudah dihitung
+        };
+
+        await Session.update(sessionId, sessionData);
+        res.redirect('/admin/manage');
+    } catch (error) {
+        console.error(error);
+        const errorMessage = encodeURIComponent(error.message);
+        res.redirect(`/admin/session/${sessionId}/edit?error=${errorMessage}`);
+    }
+};
+
+// Memproses hapus sesi
+exports.deleteSession = async (req, res) => {
+    try {
+        const sessionId = req.params.id;
+        await Session.delete(sessionId);
+        res.redirect('/admin/manage');
+    } catch (error) {
+        console.error(error);
+        res.redirect('/admin/manage');
     }
 };

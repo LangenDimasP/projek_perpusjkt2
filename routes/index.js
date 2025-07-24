@@ -19,4 +19,6 @@ router.get('/profile', isLoggedIn, publicController.showProfilePage);
 // Route for the booking history page (protected)
 router.get('/history', isLoggedIn, publicController.showHistoryPage);
 
+router.get('/dashboard', isLoggedIn, publicController.showUserDashboard);
+
 module.exports = router;

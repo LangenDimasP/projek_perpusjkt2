@@ -1,0 +1,118 @@
+<%- include('../partials/header') %>
+<%- include('../partials/back-button') %>
+
+<h2 class="text-3xl font-bold mb-6">Edit Sesi</h2>
+
+<!-- Area untuk menampilkan pesan error -->
+<% if (locals.error) { %>
+    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+        <p class="font-bold">Gagal Memperbarui Sesi</p>
+        <p><%= locals.error %></p>
+    </div>
+<% } %>
+
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <form action="/admin/session/<%= session.id %>/edit" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <div class="md:col-span-2">
+            <label for="event_id" class="block font-medium text-gray-700">Pilih Event</label>
+            <select name="event_id" id="event_id" required class="w-full mt-1 border-gray-300 rounded-md shadow-sm">
+                <% events.forEach(event => { %>
+                    <option value="<%= event.id %>" <%= session.event_id == event.id ? 'selected' : '' %>>
+                        <%= event.name %>
+                    </option>
+                <% }) %>
+            </select>
+        </div>
+
+        <div>
+            <label for="start_time" class="block font-medium text-gray-700">Waktu Mulai Sesi</label>
+            <input type="datetime-local" name="start_time" id="start_time" required 
+                   value="<%= new Date(new Date(session.start_time).getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().slice(0, 16) %>" 
+                   class="w-full mt-1 border-gray-300 rounded-md shadow-sm">
+        </div>
+
+        <div>
+            <label for="end_time" class="block font-medium text-gray-700">Waktu Selesai Sesi</label>
+            <input type="datetime-local" name="end_time" id="end_time" required 
+                   value="<%= new Date(new Date(session.end_time).getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().slice(0, 16) %>" 
+                   class="w-full mt-1 border-gray-300 rounded-md shadow-sm">
+        </div>
+
+        <div>
+            <label for="booking_open_time" class="block font-medium text-gray-700">Reservasi Dibuka Pada</label>
+            <input type="datetime-local" name="booking_open_time" id="booking_open_time" required 
+                   value="<%= new Date(new Date(session.booking_open_time).getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().slice(0, 16) %>" 
+                   class="w-full mt-1 border-gray-300 rounded-md shadow-sm">
+        </div>
+
+        <div>
+            <label for="public_quota" class="block font-medium text-gray-700">Kuota Publik</label>
+            <input type="number" name="public_quota" id="public_quota" required 
+                   value="<%= session.public_quota %>" 
+                   class="w-full mt-1 border-gray-300 rounded-md shadow-sm">
+        </div>
+        
+        <div class="md:col-span-2 flex items-center space-x-3 border-t pt-5">
+            <input type="checkbox" id="include_internal" name="include_internal" 
+                   <%= session.internal_quota > 0 ? 'checked' : '' %> 
+                   class="h-4 w-4 rounded border-gray-300 text-blue-600">
+            <label for="include_internal" class="font-medium text-gray-700">Sertakan Kuota Internal (PIC)</label>
+        </div>
+
+        <div id="internal_quota_wrapper" class="<%= session.internal_quota > 0 ? '' : 'hidden' %>">
+            <label for="internal_quota" class="block font-medium text-gray-700">Jumlah Kuota Internal</label>
+            <input type="number" name="internal_quota" id="internal_quota" 
+                   value="<%= session.internal_quota %>" 
+                   class="w-full mt-1 border-gray-300 rounded-md shadow-sm">
+        </div>
+
+        <div class="md:col-span-2">
+            <label for="total_quota" class="block font-medium text-gray-700">Total Kuota (Otomatis)</label>
+            <input type="number" name="total_quota" id="total_quota" required 
+                   value="<%= session.total_quota %>" 
+                   class="w-full mt-1 border-gray-300 rounded-md shadow-sm bg-gray-200" readonly>
+        </div>
+
+        <div class="md:col-span-2 flex justify-end">
+             <button type="submit" class="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700">Simpan Perubahan</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const checkbox = document.getElementById('include_internal');
+        const wrapper = document.getElementById('internal_quota_wrapper');
+        
+        const totalQuotaInput = document.getElementById('total_quota');
+        const publicQuotaInput = document.getElementById('public_quota');
+        const internalQuotaInput = document.getElementById('internal_quota');
+
+        function toggleInternalQuota() {
+            if (wrapper && internalInput) {
+                wrapper.classList.toggle('hidden', !checkbox.checked);
+                if (!checkbox.checked) {
+                    internalInput.value = 0;
+                }
+                calculateTotalQuota(); // Panggil kalkulasi saat checkbox berubah
+            }
+        }
+
+        function calculateTotalQuota() {
+            const publicQuota = parseInt(publicQuotaInput.value, 10) || 0;
+            const internalQuota = parseInt(internalQuotaInput.value, 10) || 0;
+            
+            totalQuotaInput.value = publicQuota + internalQuota;
+        }
+
+        if (checkbox) checkbox.addEventListener('change', toggleInternalQuota);
+        if (publicQuotaInput) publicQuotaInput.addEventListener('input', calculateTotalQuota);
+        if (internalInput) internalInput.addEventListener('input', calculateTotalQuota);
+        
+        // Panggil sekali saat halaman dimuat untuk memastikan nilainya benar
+        calculateTotalQuota();
+    });
+</script>
+
+<%- include('../partials/footer') %>

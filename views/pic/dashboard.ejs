@@ -1,108 +1,75 @@
 <%- include('../partials/header') %>
 
-<h1 class="text-3xl font-bold text-gray-800 mb-6">PIC Dashboard - Alokasi Kuota Internal</h1>
-
-<% if (sessions.length > 0) { %>
-    <div class="space-y-8">
-        <% sessions.forEach(session => { %>
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <div>
-                    <h2 class="text-xl font-bold text-blue-600"><%= session.event_name %></h2>
-                    <p class="text-gray-500">Sesi: <%= new Date(session.start_time).toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' }) %></p>
-                    <p class="text-gray-600 mt-2">Sisa Kuota Internal: 
-                        <span class="font-bold text-green-600" id="quota-<%= session.id %>"><%= session.internal_quota %></span>
-                    </p>
-                </div>
-
-                <hr class="my-4">
-
-                <div class="flex items-center space-x-2">
-                    <input type="text" id="user-input-<%= session.id %>" placeholder="Masukkan atau Pindai ID Unik" class="flex-grow px-3 py-2 border rounded-md">
-                    <button type="button" onclick="addUser('<%= session.id %>')" class="bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-800">Tambah</button>
-                </div>
-                <div id="error-msg-<%= session.id %>" class="text-red-500 text-sm mt-1"></div>
-
-                <form action="/pic/allocate-bulk" method="POST">
-                    <input type="hidden" name="sessionId" value="<%= session.id %>">
-                    
-                    <div id="user-list-<%= session.id %>" class="mt-4 space-y-2">
-                        </div>
-
-                    <button type="submit" class="mt-4 w-full bg-indigo-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-indigo-700">
-                        Submit Semua Alokasi
-                    </button>
-                </form>
-            </div>
-        <% }) %>
+<div class="space-y-6">
+    <div>
+        <h2 class="text-3xl font-bold text-gray-800">Dashboard PIC</h2>
+        <p class="text-gray-600">Ringkasan aktivitas alokasi Anda.</p>
     </div>
-<% } else { %>
-    <p class="text-center text-gray-500 mt-10">Tidak ada sesi dengan kuota internal yang bisa dialokasikan.</p>
-<% } %>
 
+    <!-- Kartu Statistik yang Dipercantik -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white p-6 rounded-lg shadow-md flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500">Total Alokasi</p>
+                <p class="text-3xl font-bold text-gray-800"><%= stats.totalAllocations %></p>
+            </div>
+            <div class="bg-blue-100 text-blue-600 p-3 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+            </div>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500">Total Orang Dialokasikan</p>
+                <p class="text-3xl font-bold text-gray-800"><%= stats.totalPeopleAllocated %></p>
+            </div>
+            <div class="bg-green-100 text-green-600 p-3 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+            </div>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500">Sesi Aktif Tersedia</p>
+                <p class="text-3xl font-bold text-gray-800"><%= stats.activeSessions %></p>
+            </div>
+            <div class="bg-yellow-100 text-yellow-600 p-3 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart Aktivitas 7 Hari -->
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <h3 class="font-semibold mb-4">Aktivitas Alokasi 7 Hari Terakhir</h3>
+        <div class="h-80"><canvas id="dailyAllocationsChart"></canvas></div>
+    </div>
+    
+    <!-- Chart Row 2 -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="font-semibold mb-4">Alokasi per Event</h3>
+            <div style="height:200px;"><canvas id="eventAllocationsChart"></canvas></div>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="font-semibold mb-4">Tipe Alokasi (Rombongan vs. Sendiri)</h3>
+            <div style="height:200px;"><canvas id="allocationTypeChart"></canvas></div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    async function addUser(sessionId) {
-        const input = document.getElementById(`user-input-${sessionId}`);
-        const userList = document.getElementById(`user-list-${sessionId}`);
-        const errorMsg = document.getElementById(`error-msg-${sessionId}`);
-        const quotaSpan = document.getElementById(`quota-${sessionId}`);
-        const uniqueUserId = input.value.trim();
+    document.addEventListener('DOMContentLoaded', () => {
+        // Chart 1: Line Chart (Aktivitas Harian)
+        const dailyCtx = document.getElementById('dailyAllocationsChart');
+        if (dailyCtx) new Chart(dailyCtx, { type: 'line', data: { labels: <%- dailyLabels %>, datasets: [{ label: 'Jumlah Alokasi', data: <%- dailyData %>, borderColor: 'rgb(59, 130, 246)', backgroundColor: 'rgba(59, 130, 246, 0.1)', fill: true, tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } } });
 
-        errorMsg.textContent = '';
-        if (!uniqueUserId) return;
+        // Chart 2: Bar Chart (Alokasi per Event)
+        const eventCtx = document.getElementById('eventAllocationsChart');
+        if (eventCtx) new Chart(eventCtx, { type: 'bar', data: { labels: <%- eventLabels %>, datasets: [{ label: 'Jumlah Alokasi', data: <%- eventData %>, backgroundColor: 'rgba(16, 185, 129, 0.8)', borderRadius: 5 }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, scales: { x: { beginAtZero: true, ticks: { precision: 0 } } } } });
 
-        // Check if user is already in the list
-        if (document.querySelector(`input[name="userIds"][value-unique="${uniqueUserId}"]`)) {
-            errorMsg.textContent = 'User ini sudah ada di dalam daftar.';
-            return;
-        }
-
-        // Check if list exceeds quota
-        const currentListCount = userList.children.length;
-        if (currentListCount >= parseInt(quotaSpan.textContent)) {
-            errorMsg.textContent = 'Jumlah user melebihi sisa kuota.';
-            return;
-        }
-        
-        try {
-            // Validate user via API
-            const response = await fetch('/pic/api/validate-user', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ uniqueUserId })
-            });
-
-            const result = await response.json();
-            if (!result.success) {
-                throw new Error(result.message);
-            }
-
-            // If valid, add to the list
-            const user = result.user;
-            const listItem = document.createElement('div');
-            listItem.className = 'flex items-center justify-between bg-gray-100 p-2 rounded';
-            listItem.innerHTML = `
-                <span>${user.name} (${user.unique_user_id})</span>
-                <input type="hidden" name="userIds" value="${user.id}" value-unique="${user.unique_user_id}">
-                <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-700">Hapus</button>
-            `;
-            userList.appendChild(listItem);
-            input.value = ''; // Clear input
-            input.focus();
-
-        } catch (error) {
-            errorMsg.textContent = error.message;
-        }
-    }
-
-    // Allow adding user by pressing Enter
-    document.querySelectorAll('input[id^="user-input-"]').forEach(input => {
-        input.addEventListener('keydown', function(event) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                const sessionId = this.id.split('-').pop();
-                addUser(sessionId);
-            }
-        });
+        // Chart 3: Doughnut Chart (Tipe Alokasi)
+        const typeCtx = document.getElementById('allocationTypeChart');
+        if (typeCtx) new Chart(typeCtx, { type: 'doughnut', data: { labels: <%- typeLabels %>, datasets: [{ data: <%- typeData %>, backgroundColor: ['#3B82F6', '#FBBF24'], borderColor: '#FFFFFF', borderWidth: 4, hoverOffset: 8 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '65%' } });
     });
 </script>
 

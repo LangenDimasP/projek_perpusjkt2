@@ -1,0 +1,101 @@
+<%- include('../partials/header') %>
+
+<div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">PIC Dashboard</h1>
+    <div class="flex items-center space-x-2 mt-4 md:mt-0">
+        <select id="eventFilter" class="p-2 border border-gray-300 rounded-md bg-white shadow-sm">
+            <option value="immersif" <%= currentFilter === 'immersif' ? 'selected' : '' %>>Immersif</option>
+            <option value="others" <%= currentFilter === 'others' ? 'selected' : '' %>>Event Lainnya</option>
+        </select>
+        <select id="monthFilter" class="p-2 border border-gray-300 rounded-md bg-white shadow-sm">
+            <% const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"]; %>
+            <% for(let i = 1; i <= 12; i++) { %>
+                <option value="<%= i %>" <%= currentMonth == i ? 'selected' : '' %>><%= months[i-1] %></option>
+            <% } %>
+        </select>
+        <select id="yearFilter" class="p-2 border border-gray-300 rounded-md bg-white shadow-sm">
+            <% const startYear = new Date().getFullYear(); %>
+            <% for(let i = 0; i < 3; i++) { %>
+                <option value="<%= startYear + i %>" <%= currentYear == (startYear + i) ? 'selected' : '' %>><%= startYear + i %></option>
+            <% } %>
+        </select>
+    </div>
+</div>
+
+
+<% if (locals.error) { %>
+    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+        <p class="font-bold">Gagal Mengalokasikan:</p>
+        <p><%= locals.error %></p>
+    </div>
+<% } %>
+<% if (locals.success) { %>
+     <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6" role="alert">
+        <p class="font-bold">Alokasi Berhasil!</p>
+        <p>Rombongan telah berhasil didaftarkan.</p>
+    </div>
+<% } %>
+
+<% if (sessions.length > 0) { %>
+    <div class="space-y-8">
+        <% sessions.forEach(session => { %>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <div>
+                    <h2 class="text-xl font-bold text-blue-600"><%= session.event_name %></h2>
+                    <p class="text-gray-500">Sesi: <%= new Date(session.start_time).toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' }) %></p>
+                    <p class="text-gray-600 mt-2">Sisa Kuota Internal: 
+                        <span class="font-bold text-green-600"><%= session.internal_quota %></span>
+                    </p>
+                </div>
+                <hr class="my-4">
+                <form action="/pic/allocate-group" method="POST" class="space-y-4">
+                    <input type="hidden" name="sessionId" value="<%= session.id %>">
+                    <div>
+                        <label for="leaderUniqueId-<%= session.id %>" class="block font-medium text-gray-700">ID Unik Ketua Rombongan</label>
+                        <input type="text" id="leaderUniqueId-<%= session.id %>" name="leaderUniqueId" placeholder="Pindai atau masukkan ID" 
+                               class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required>
+                    </div>
+                    <div>
+                        <label for="additionalMembers-<%= session.id %>" class="block font-medium text-gray-700">Jumlah Anggota Tambahan</label>
+                        <input type="number" id="additionalMembers-<%= session.id %>" name="additionalMembers" placeholder="Contoh: 4" min="0"
+                               class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required>
+                        <p class="text-xs text-gray-500 mt-1">Total slot yang akan digunakan: 1 (ketua) + jumlah anggota.</p>
+                    </div>
+                    <button type="submit" class="w-full bg-indigo-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-indigo-700">
+                        Submit Rombongan
+                    </button>
+                </form>
+            </div>
+        <% }) %>
+    </div>
+<% } else { %>
+    <p class="text-center text-gray-500 mt-10 bg-white p-8 rounded-lg shadow-md">Tidak ada sesi dengan kuota internal yang cocok dengan filter Anda.</p>
+<% } %>
+
+<script>
+    const eventFilter = document.getElementById('eventFilter');
+    const monthFilter = document.getElementById('monthFilter');
+    const yearFilter = document.getElementById('yearFilter');
+
+    function applyFilters() {
+        const filter = eventFilter.value;
+        const month = monthFilter.value;
+        const year = yearFilter.value;
+        
+        // Buat URL baru dengan semua parameter filter
+        const url = new URL(window.location.origin + window.location.pathname);
+        url.searchParams.set('filter', filter);
+        url.searchParams.set('month', month);
+        url.searchParams.set('year', year);
+        
+        // Arahkan browser ke URL baru, yang akan memuat ulang halaman dengan filter
+        window.location.href = url.toString();
+    }
+
+    // Tambahkan event listener ke setiap dropdown
+    eventFilter.addEventListener('change', applyFilters);
+    monthFilter.addEventListener('change', applyFilters);
+    yearFilter.addEventListener('change', applyFilters);
+</script>
+
+<%- include('../partials/footer') %>

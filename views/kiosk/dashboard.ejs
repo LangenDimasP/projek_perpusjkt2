@@ -1,0 +1,135 @@
+<%- include('../partials/header') %>
+
+<div class="space-y-6">
+    <div>
+        <h2 class="text-3xl font-bold text-gray-800">Dashboard Kiosk</h2>
+        <p class="text-gray-600">Ringkasan aktivitas check-in Anda.</p>
+    </div>
+
+    <!-- Kartu Statistik -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- (Kode untuk 3 kartu statistik tetap sama) -->
+        <div class="bg-white p-6 rounded-lg shadow-md flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500">Check-in Hari Ini</p>
+                <p class="text-3xl font-bold text-gray-800"><%= stats.checkinsToday %></p>
+            </div>
+            <div class="bg-blue-100 text-blue-600 p-3 rounded-full">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0h18M-4.5 12h22.5" /></svg>
+            </div>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500">Check-in Minggu Ini</p>
+                <p class="text-3xl font-bold text-gray-800"><%= stats.checkinsWeek %></p>
+            </div>
+            <div class="bg-green-100 text-green-600 p-3 rounded-full">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            </div>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500">Total Check-in Anda</p>
+                <p class="text-3xl font-bold text-gray-800"><%= stats.checkinsTotal %></p>
+            </div>
+            <div class="bg-yellow-100 text-yellow-600 p-3 rounded-full">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" /></svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart Aktivitas per Jam (Full Width) -->
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <h3 class="font-semibold mb-4">Aktivitas Check-in per Jam (Hari Ini)</h3>
+        <div class="h-80">
+            <canvas id="hourlyCheckinsChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Chart Row 2 (Two Columns) -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="font-semibold mb-4">Proporsi Event yang Ditangani</h3>
+            <div style="height:200px;">
+                <canvas id="eventProportionChart"></canvas>
+            </div>
+        </div>
+        <!-- CHART BARU DI SINI -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h3 class="font-semibold mb-4">Check-in berdasarkan Tipe Booking</h3>
+            <div style="height:200px;">
+                <canvas id="bookingTypeChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Chart 1: Bar Chart (Aktivitas per Jam)
+        const hourlyCtx = document.getElementById('hourlyCheckinsChart');
+        if (hourlyCtx) {
+            new Chart(hourlyCtx, {
+                type: 'bar',
+                data: {
+                    labels: <%- hourlyLabels %>,
+                    datasets: [{
+                        label: 'Jumlah Check-in',
+                        data: <%- hourlyData %>,
+                        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                        borderRadius: 5
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+            });
+        }
+
+        // Chart 2: Pie Chart (Proporsi Event)
+        const eventCtx = document.getElementById('eventProportionChart');
+        if (eventCtx) {
+            new Chart(eventCtx, {
+                type: 'pie',
+                data: {
+                    labels: <%- eventLabels %>,
+                    datasets: [{
+                        label: 'Jumlah Check-in',
+                        data: <%- eventData %>,
+                        backgroundColor: ['#3B82F6', '#60A5FA', '#93C5FD', '#BFDBFE', '#E0F2FE'],
+                        borderColor: '#FFFFFF', borderWidth: 2
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        // CHART BARU: Bar Chart Horizontal (Tipe Booking)
+        const typeCtx = document.getElementById('bookingTypeChart');
+        if (typeCtx) {
+            new Chart(typeCtx, {
+                type: 'bar',
+                data: {
+                    labels: <%- typeLabels %>,
+                    datasets: [{
+                        label: 'Jumlah Check-in',
+                        data: <%- typeData %>,
+                        backgroundColor: ['rgba(16, 185, 129, 0.8)', 'rgba(239, 68, 68, 0.8)'], // Hijau & Merah
+                        borderColor: ['#10B981', '#EF4444'],
+                        borderWidth: 1,
+                        borderRadius: 5
+                    }]
+                },
+                options: { 
+                    indexAxis: 'y', // Ini yang membuat chart menjadi horizontal
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    scales: { 
+                        x: { beginAtZero: true, ticks: { precision: 0 } } 
+                    } 
+                }
+            });
+        }
+    });
+</script>
+
+<%- include('../partials/footer') %>

@@ -8,10 +8,10 @@ class Event {
     }
 
     static async getAll() {
-        const sql = 'SELECT * FROM events ORDER BY created_at DESC';
-        const [rows] = await db.query(sql);
-        return rows;
-    }
+    const sql = 'SELECT * FROM events ORDER BY created_at DESC';
+    const [rows] = await db.query(sql);
+    return rows;
+}
 
     // PERBAIKAN: Mengambil SEMUA event beserta sesinya
     static async getWithSessions() {
@@ -92,6 +92,16 @@ class Event {
         const [rows] = await db.query(sql, params);
         return rows;
     }
+    static async update(eventId, eventData) {
+    const sql = "UPDATE events SET ? WHERE id = ?";
+    await db.query(sql, [eventData, eventId]);
+}
+
+static async delete(eventId) {
+    // Deleting an event will also delete its sessions because of "ON DELETE CASCADE" in the database
+    const sql = "DELETE FROM events WHERE id = ?";
+    await db.query(sql, [eventId]);
+}
 }
 
 module.exports = Event;

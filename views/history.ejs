@@ -20,109 +20,100 @@
 <% if (bookings.length > 0) { %>
     <div class="space-y-6">
         <% bookings.forEach(booking => { %>
-            <div class="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-100">
-                <div class="p-6 md:p-8">
-                    <div class="flex flex-col md:flex-row gap-6 items-start">
-                        <div class="flex-grow space-y-4">
-                            <!-- Event Header -->
-                            <div class="flex items-start space-x-3">
-                                <div class="flex-shrink-0 p-2 bg-blue-100 rounded-lg">
-                                    <!-- Building Office Icon -->
-                                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                    </svg>
-                                </div>
-                                <div class="flex-1">
-                                    <h2 class="text-xl md:text-2xl font-bold text-blue-600"><%= booking.event_name %></h2>
-                                    <div class="flex items-center space-x-2 mt-1">
-                                        <!-- Location Marker Icon -->
-                                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        </svg>
-                                        <p class="text-gray-600"><%= booking.location %></p>
-                                    </div>
-                                </div>
-                            </div>
+    <div class="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-gray-100 relative">
+        
+        <% if (booking.group_size > 1) { %>
+            <div class="absolute top-0 right-0 bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg z-10 flex items-center gap-1">
+                ROMBONGAN
+                <svg class="w-4 h-4 ml-1" fill="#fff" viewBox="-3 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M20.906 20.75c1.313 0.719 2.063 2 1.969 3.281-0.063 0.781-0.094 0.813-1.094 0.938-0.625 0.094-4.563 0.125-8.625 0.125-4.594 0-9.406-0.094-9.75-0.188-1.375-0.344-0.625-2.844 1.188-4.031 1.406-0.906 4.281-2.281 5.063-2.438 1.063-0.219 1.188-0.875 0-3-0.281-0.469-0.594-1.906-0.625-3.406-0.031-2.438 0.438-4.094 2.563-4.906 0.438-0.156 0.875-0.219 1.281-0.219 1.406 0 2.719 0.781 3.25 1.938 0.781 1.531 0.469 5.625-0.344 7.094-0.938 1.656-0.844 2.188 0.188 2.469 0.688 0.188 2.813 1.188 4.938 2.344zM3.906 19.813c-0.5 0.344-0.969 0.781-1.344 1.219-1.188 0-2.094-0.031-2.188-0.063-0.781-0.188-0.344-1.625 0.688-2.25 0.781-0.5 2.375-1.281 2.813-1.375 0.563-0.125 0.688-0.469 0-1.656-0.156-0.25-0.344-1.063-0.344-1.906-0.031-1.375 0.25-2.313 1.438-2.719 1-0.375 2.125 0.094 2.531 0.938 0.406 0.875 0.188 3.125-0.25 3.938-0.5 0.969-0.406 1.219 0.156 1.375 0.125 0.031 0.375 0.156 0.719 0.313-1.375 0.563-3.25 1.594-4.219 2.188zM24.469 18.625c0.75 0.406 1.156 1.094 1.094 1.813-0.031 0.438-0.031 0.469-0.594 0.531-0.156 0.031-0.875 0.063-1.813 0.063-0.406-0.531-0.969-1.031-1.656-1.375-1.281-0.75-2.844-1.563-4-2.063 0.313-0.125 0.594-0.219 0.719-0.25 0.594-0.125 0.688-0.469 0-1.656-0.125-0.25-0.344-1.063-0.344-1.906-0.031-1.375 0.219-2.313 1.406-2.719 1.031-0.375 2.156 0.094 2.531 0.938 0.406 0.875 0.25 3.125-0.188 3.938-0.5 0.969-0.438 1.219 0.094 1.375 0.375 0.125 1.563 0.688 2.75 1.313z"></path>
+                </svg>
+            </div>
+        <% } %>
 
-                            <!-- Event Time -->
-                            <div class="flex items-center space-x-2 bg-gray-50 p-3 rounded-lg">
-                                <!-- Calendar Icon -->
-                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                <p class="font-semibold text-gray-800"><%= new Date(booking.start_time).toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' }) %></p>
+        <div class="p-6 md:p-8">
+            <div class="flex flex-col md:flex-row gap-6 items-center md:items-start">
+                <div class="flex-grow space-y-4 w-full">
+                    <div class="flex items-start space-x-3">
+                        <div class="flex-shrink-0 p-2 bg-blue-100 rounded-lg">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 class="text-xl md:text-2xl font-bold text-blue-600"><%= booking.event_name %></h2>
+                            <p class="text-gray-600"><%= booking.location %></p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-2 bg-gray-50 p-3 rounded-lg">
+                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <p class="font-semibold text-gray-800"><%= new Date(booking.start_time).toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' }) %></p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-100">
+                        <div class="space-y-3">
+                            <% if (booking.group_size > 1) { %>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-2">
+                                        <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                                        <span class="font-semibold text-gray-700">Jumlah Pengunjung:</span>
+                                    </div>
+                                    <span class="font-bold text-indigo-800"><%= booking.group_size %> Orang</span>
+                                </div>
+                            <% } %>
+
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <% if (booking.status === 'CHECKED_IN') { %>
+                                        <!-- SVG untuk checked-in -->
+                                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M10.9023 19.8701H17.3723C21.0723 19.8701 21.9923 18.9501 21.9923 15.2501C20.7123 15.2501 19.6823 14.2101 19.6823 12.9401C19.6823 11.6601 20.7123 10.6201 21.9923 10.6201V9.70008C21.9923 6.00008 21.0723 5.08008 17.3723 5.08008H10.9923V11.8701" stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M10.9936 16.87V19.87H8.22356C6.74356 19.87 5.87357 18.86 4.91357 16.54L4.73356 16.09C5.94356 15.61 6.53357 14.21 6.02357 13C5.53357 11.79 4.14357 11.21 2.92357 11.71L2.75357 11.28C1.31356 7.76 1.81357 6.53 5.33357 5.08L7.97357 4L10.9936 11.32V13.87" stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M8.16219 19.8701H7.99219" stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    <% } else { %>
+                                        <!-- SVG default -->
+                                        <svg class="h-5 w-5 " viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M19.5 12.5C19.5 11.12 20.62 10 22 10V9C22 5 21 4 17 4H7C3 4 2 5 2 9V9.5C3.38 9.5 4.5 10.62 4.5 12C4.5 13.38 3.38 14.5 2 14.5V15C2 19 3 20 7 20H17C21 20 22 19 22 15C20.62 15 19.5 13.88 19.5 12.5Z" stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M10 4L10 20" stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="5 5"/>
+                                        </svg>
+                                    <% } %>
+                                    <span class="font-semibold text-gray-700">Kode Reservasi:</span>
+                                </div>
+                                <div class="bg-white border-2 border-dashed border-blue-300 rounded-lg px-3 py-1">
+                                    <span class="font-mono font-bold text-blue-800"><%= booking.reservation_code %></span>
+                                </div>
                             </div>
                             
-                            <!-- Booking Details -->
-                            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-100">
-                                <div class="space-y-3">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center space-x-2">
-                                            <!-- Ticket Icon -->
-                                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 11-2-4V7a2 2 0 00-2-2H5z" />
-                                            </svg>
-                                            <span class="font-semibold text-gray-700">Kode Reservasi:</span>
-                                        </div>
-                                        <div class="bg-white border-2 border-dashed border-blue-300 rounded-lg px-3 py-1">
-                                            <span class="font-mono font-bold text-blue-800"><%= booking.reservation_code %></span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center space-x-2">
-                                            <!-- Status Icon -->
-                                            <% if (booking.status === 'CONFIRMED') { %>
-                                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                            <% } else if (booking.status === 'CHECKED_IN') { %>
-                                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                                </svg>
-                                            <% } else if (booking.status === 'CANCELLED') { %>
-                                                <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                            <% } %>
-                                            <span class="font-semibold text-gray-700">Status:</span>
-                                        </div>
-                                        <div>
-                                            <% if (booking.status === 'CONFIRMED') { %>
-                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800 border border-green-200">
-                                                    Terkonfirmasi
-                                                </span>
-                                            <% } else if (booking.status === 'CHECKED_IN') { %>
-                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800 border border-blue-200">
-                                                    Sudah Check-in
-                                                </span>
-                                            <% } else if (booking.status === 'CANCELLED') { %>
-                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-red-100 text-red-800 border border-red-200">
-                                                    Dibatalkan
-                                                </span>
-                                            <% } %>
-                                        </div>
-                                    </div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <% if (booking.status === 'CONFIRMED') { %><svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><% } else if (booking.status === 'CHECKED_IN') { %><svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg><% } else if (booking.status === 'CANCELLED') { %><svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg><% } %>
+                                    <span class="font-semibold text-gray-700">Status:</span>
+                                </div>
+                                <div>
+                                    <% if (booking.status === 'CONFIRMED') { %><span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800 border border-green-200">Terkonfirmasi</span><% } else if (booking.status === 'CHECKED_IN') { %><span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800 border border-blue-200">Sudah Check-in</span><% } else if (booking.status === 'CANCELLED') { %><span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-red-100 text-red-800 border border-red-200">Dibatalkan</span><% } %>
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- QR Code Button -->
-                        <div class="flex-shrink-0">
-                            <button class="bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-6 rounded-xl hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl"
-                                    onclick="showQRCodeModal('<%= booking.reservation_code %>')">
-                                <!-- QR Code Icon -->
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m9 5.197v1M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                                </svg>
-                                <span class="font-semibold">Lihat QR Code</span>
-                            </button>
                         </div>
                     </div>
                 </div>
+
+                <div class="flex-shrink-0 w-full md:w-auto flex justify-center md:items-center">
+                    <button class="bg-yellow-500 text-white py-3 px-6 rounded-xl hover:bg-yellow-600 focus:outline-none focus:ring-4 focus:ring-gray-300 transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl"
+                            onclick="showQRCodeModal('<%= booking.reservation_code %>')">
+                        <svg class="w-6 h-6" fill="#ffffff" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M 8.3827 21.4023 C 9.6015 21.4023 10.2577 20.7227 10.2577 19.4805 L 10.2577 13.9492 C 10.2577 11.5118 11.5702 10.2696 13.9140 10.2696 L 19.5858 10.2696 C 20.8046 10.2696 21.4843 9.5898 21.4843 8.3711 C 21.4843 7.1758 20.8046 6.4961 19.5858 6.4961 L 13.8436 6.4961 C 8.9687 6.4961 6.4843 8.9102 6.4843 13.7383 L 6.4843 19.4805 C 6.4843 20.7227 7.1640 21.4023 8.3827 21.4023 Z M 47.6171 21.4023 C 48.8591 21.4023 49.5157 20.7227 49.5157 19.4805 L 49.5157 13.7383 C 49.5157 8.9102 47.0780 6.4961 42.1562 6.4961 L 36.4374 6.4961 C 35.1952 6.4961 34.5155 7.1758 34.5155 8.3711 C 34.5155 9.5898 35.1952 10.2696 36.4374 10.2696 L 42.1093 10.2696 C 44.4062 10.2696 45.7421 11.5118 45.7421 13.9492 L 45.7421 19.4805 C 45.7421 20.7227 46.4218 21.4023 47.6171 21.4023 Z M 26.9921 25.9727 L 26.9921 17.7930 C 26.9921 17.2305 26.5468 16.7617 25.9608 16.7617 L 17.8046 16.7617 C 17.2187 16.7617 16.7733 17.2305 16.7733 17.7930 L 16.7733 25.9727 C 16.7733 26.5352 17.2187 26.9805 17.8046 26.9805 L 25.9608 26.9805 C 26.5468 26.9805 26.9921 26.5352 26.9921 25.9727 Z M 31.0468 18.8008 L 37.1874 18.8008 L 37.1874 24.9414 L 31.0468 24.9414 Z M 35.4062 23.1602 L 35.4062 20.6055 L 32.8515 20.6055 L 32.8515 23.1602 Z M 23.1718 23.1602 L 23.1718 20.6055 L 20.5936 20.6055 L 20.5936 23.1602 Z M 18.8124 31.0586 L 24.9530 31.0586 L 24.9530 37.1992 L 18.8124 37.1992 Z M 38.9218 31.8555 L 38.9218 29.3008 L 36.3671 29.3008 L 36.3671 31.8555 Z M 31.8671 31.8555 L 31.8671 29.3008 L 29.3124 29.3008 L 29.3124 31.8555 Z M 23.1718 35.3945 L 23.1718 32.8398 L 20.5936 32.8398 L 20.5936 35.3945 Z M 35.4062 35.3945 L 35.4062 32.8398 L 32.8280 32.8398 L 32.8280 35.3945 Z M 36.4374 49.5039 L 42.1562 49.5039 C 47.0780 49.5039 49.5157 47.0664 49.5157 42.2383 L 49.5157 36.5196 C 49.5157 35.2774 48.8360 34.5977 47.6171 34.5977 C 46.3984 34.5977 45.7421 35.2774 45.7421 36.5196 L 45.7421 42.0508 C 45.7421 44.4883 44.4062 45.7305 42.1093 45.7305 L 36.4374 45.7305 C 35.1952 45.7305 34.5155 46.4102 34.5155 47.6289 C 34.5155 48.8242 35.1952 49.5039 36.4374 49.5039 Z M 13.8436 49.5039 L 19.5858 49.5039 C 20.8046 49.5039 21.4843 48.8242 21.4843 47.6289 C 21.4843 46.4102 20.8046 45.7305 19.5858 45.7305 L 13.9140 45.7305 C 11.5702 45.7305 10.2577 44.4883 10.2577 42.0508 L 10.2577 36.5196 C 10.2577 35.2774 9.5780 34.5977 8.3827 34.5977 C 7.1405 34.5977 6.4843 35.2774 6.4843 36.5196 L 6.4843 42.2383 C 6.4843 47.0898 8.9687 49.5039 13.8436 49.5039 Z M 31.8671 38.9336 L 31.8671 36.3789 L 29.3124 36.3789 L 29.3124 38.9336 Z M 38.9218 38.9336 L 38.9218 36.3789 L 36.3671 36.3789 L 36.3671 38.9336 Z M 39.2265 25.9727 L 39.2265 17.7930 C 39.2265 17.2305 38.7811 16.7617 38.1952 16.7617 L 30.0389 16.7617 C 29.4530 16.7617 29.0077 17.2305 29.0077 17.7930 L 29.0077 25.9727 C 29.0077 26.5352 29.4530 26.9805 30.0389 26.9805 L 38.1952 26.9805 C 38.7811 26.9805 39.2265 26.5352 39.2265 25.9727 Z M 18.8124 18.8008 L 24.9530 18.8008 L 24.9530 24.9414 L 18.8124 24.9414 Z M 26.9921 38.2070 L 26.9921 30.0274 C 26.9921 29.4649 26.5468 29.0196 25.9608 29.0196 L 17.8046 29.0196 C 17.2187 29.0196 16.7733 29.4649 16.7733 30.0274 L 16.7733 38.2070 C 16.7733 38.7696 17.2187 39.2383 17.8046 39.2383 L 25.9608 39.2383 C 26.5468 39.2383 26.9921 38.7696 26.9921 38.2070 Z"/>
+                        </svg>
+                        <span class="font-semibold">Lihat QR Code</span>
+                    </button>
+                </div>
             </div>
-        <% }) %>
+        </div>
+    </div>
+<% }) %>
     </div>
 <% } else { %>
     <div class="text-center py-20">
@@ -149,9 +140,9 @@
     <div class="bg-white rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl">
         <div class="flex items-center justify-center space-x-2 mb-6">
             <!-- QR Code Icon -->
-            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m9 5.197v1M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>
+            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <path d="M16.1666667,6 C16.0746192,6 16,6.07461921 16,6.16666667 L16,7.83333333 C16,7.92538079 16.0746192,8 16.1666667,8 L17.8333333,8 C17.9253808,8 18,7.92538079 18,7.83333333 L18,6.16666667 C18,6.07461921 17.9253808,6 17.8333333,6 L16.1666667,6 Z M16,18 L16,17.5 C16,17.2238576 16.2238576,17 16.5,17 C16.7761424,17 17,17.2238576 17,17.5 L17,18 L18,18 L18,17.5 C18,17.2238576 18.2238576,17 18.5,17 C18.7761424,17 19,17.2238576 19,17.5 L19,18.5 C19,18.7761424 18.7761424,19 18.5,19 L14.5,19 C14.2238576,19 14,18.7761424 14,18.5 L14,17.5 C14,17.2238576 14.2238576,17 14.5,17 C14.7761424,17 15,17.2238576 15,17.5 L15,18 L16,18 L16,18 Z M13,11 L13.5,11 C13.7761424,11 14,11.2238576 14,11.5 C14,11.7761424 13.7761424,12 13.5,12 L11.5,12 C11.2238576,12 11,11.7761424 11,11.5 C11,11.2238576 11.2238576,11 11.5,11 L12,11 L12,10 L10.5,10 C10.2238576,10 10,9.77614237 10,9.5 C10,9.22385763 10.2238576,9 10.5,9 L13.5,9 C13.7761424,9 14,9.22385763 14,9.5 C14,9.77614237 13.7761424,10 13.5,10 L13,10 L13,11 Z M18,12 L17.5,12 C17.2238576,12 17,11.7761424 17,11.5 C17,11.2238576 17.2238576,11 17.5,11 L18,11 L18,10.5 C18,10.2238576 18.2238576,10 18.5,10 C18.7761424,10 19,10.2238576 19,10.5 L19,12.5 C19,12.7761424 18.7761424,13 18.5,13 C18.2238576,13 18,12.7761424 18,12.5 L18,12 Z M13,14 L12.5,14 C12.2238576,14 12,13.7761424 12,13.5 C12,13.2238576 12.2238576,13 12.5,13 L13.5,13 C13.7761424,13 14,13.2238576 14,13.5 L14,15.5 C14,15.7761424 13.7761424,16 13.5,16 L10.5,16 C10.2238576,16 10,15.7761424 10,15.5 C10,15.2238576 10.2238576,15 10.5,15 L13,15 L13,14 L13,14 Z M16.1666667,5 L17.8333333,5 C18.4776655,5 19,5.52233446 19,6.16666667 L19,7.83333333 C19,8.47766554 18.4776655,9 17.8333333,9 L16.1666667,9 C15.5223345,9 15,8.47766554 15,7.83333333 L15,6.16666667 C15,5.52233446 15.5223345,5 16.1666667,5 Z M6.16666667,5 L7.83333333,5 C8.47766554,5 9,5.52233446 9,6.16666667 L9,7.83333333 C9,8.47766554 8.47766554,9 7.83333333,9 L6.16666667,9 C5.52233446,9 5,8.47766554 5,7.83333333 L5,6.16666667 C5,5.52233446 5.52233446,5 6.16666667,5 Z M6.16666667,6 C6.07461921,6 6,6.07461921 6,6.16666667 L6,7.83333333 C6,7.92538079 6.07461921,8 6.16666667,8 L7.83333333,8 C7.92538079,8 8,7.92538079 8,7.83333333 L8,6.16666667 C8,6.07461921 7.92538079,6 7.83333333,6 L6.16666667,6 Z M6.16666667,15 L7.83333333,15 C8.47766554,15 9,15.5223345 9,16.1666667 L9,17.8333333 C9,18.4776655 8.47766554,19 7.83333333,19 L6.16666667,19 C5.52233446,19 5,18.4776655 5,17.8333333 L5,16.1666667 C5,15.5223345 5.52233446,15 6.16666667,15 Z M6.16666667,16 C6.07461921,16 6,16.0746192 6,16.1666667 L6,17.8333333 C6,17.9253808 6.07461921,18 6.16666667,18 L7.83333333,18 C7.92538079,18 8,17.9253808 8,17.8333333 L8,16.1666667 C8,16.0746192 7.92538079,16 7.83333333,16 L6.16666667,16 Z M13,6 L10.5,6 C10.2238576,6 10,5.77614237 10,5.5 C10,5.22385763 10.2238576,5 10.5,5 L13.5,5 C13.7761424,5 14,5.22385763 14,5.5 L14,7.5 C14,7.77614237 13.7761424,8 13.5,8 C13.2238576,8 13,7.77614237 13,7.5 L13,6 Z M10.5,8 C10.2238576,8 10,7.77614237 10,7.5 C10,7.22385763 10.2238576,7 10.5,7 L11.5,7 C11.7761424,7 12,7.22385763 12,7.5 C12,7.77614237 11.7761424,8 11.5,8 L10.5,8 Z M5.5,14 C5.22385763,14 5,13.7761424 5,13.5 C5,13.2238576 5.22385763,13 5.5,13 L7.5,13 C7.77614237,13 8,13.2238576 8,13.5 C8,13.7761424 7.77614237,14 7.5,14 L5.5,14 Z M9.5,14 C9.22385763,14 9,13.7761424 9,13.5 C9,13.2238576 9.22385763,13 9.5,13 L10.5,13 C10.7761424,13 11,13.2238576 11,13.5 C11,13.7761424 10.7761424,14 10.5,14 L9.5,14 Z M11,18 L11,18.5 C11,18.7761424 10.7761424,19 10.5,19 C10.2238576,19 10,18.7761424 10,18.5 L10,17.5 C10,17.2238576 10.2238576,17 10.5,17 L12.5,17 C12.7761424,17 13,17.2238576 13,17.5 C13,17.7761424 12.7761424,18 12.5,18 L11,18 Z M9,11 L9.5,11 C9.77614237,11 10,11.2238576 10,11.5 C10,11.7761424 9.77614237,12 9.5,12 L8.5,12 C8.22385763,12 8,11.7761424 8,11.5 L8,11 L7.5,11 C7.22385763,11 7,10.7761424 7,10.5 C7,10.2238576 7.22385763,10 7.5,10 L8.5,10 C8.77614237,10 9,10.2238576 9,10.5 L9,11 Z M5,10.5 C5,10.2238576 5.22385763,10 5.5,10 C5.77614237,10 6,10.2238576 6,10.5 L6,11.5 C6,11.7761424 5.77614237,12 5.5,12 C5.22385763,12 5,11.7761424 5,11.5 L5,10.5 Z M15,10.5 C15,10.2238576 15.2238576,10 15.5,10 C15.7761424,10 16,10.2238576 16,10.5 L16,12.5 C16,12.7761424 15.7761424,13 15.5,13 C15.2238576,13 15,12.7761424 15,12.5 L15,10.5 Z M17,15 L17,14.5 C17,14.2238576 17.2238576,14 17.5,14 L18.5,14 C18.7761424,14 19,14.2238576 19,14.5 C19,14.7761424 18.7761424,15 18.5,15 L18,15 L18,15.5 C18,15.7761424 17.7761424,16 17.5,16 L15.5,16 C15.2238576,16 15,15.7761424 15,15.5 L15,14.5 C15,14.2238576 15.2238576,14 15.5,14 C15.7761424,14 16,14.2238576 16,14.5 L16,15 L17,15 Z M3,6.5 C3,6.77614237 2.77614237,7 2.5,7 C2.22385763,7 2,6.77614237 2,6.5 L2,4.5 C2,3.11928813 3.11928813,2 4.5,2 L6.5,2 C6.77614237,2 7,2.22385763 7,2.5 C7,2.77614237 6.77614237,3 6.5,3 L4.5,3 C3.67157288,3 3,3.67157288 3,4.5 L3,6.5 Z M17.5,3 C17.2238576,3 17,2.77614237 17,2.5 C17,2.22385763 17.2238576,2 17.5,2 L19.5,2 C20.8807119,2 22,3.11928813 22,4.5 L22,6.5 C22,6.77614237 21.7761424,7 21.5,7 C21.2238576,7 21,6.77614237 21,6.5 L21,4.5 C21,3.67157288 20.3284271,3 19.5,3 L17.5,3 Z M6.5,21 C6.77614237,21 7,21.2238576 7,21.5 C7,21.7761424 6.77614237,22 6.5,22 L4.5,22 C3.11928813,22 2,20.8807119 2,19.5 L2,17.5 C2,17.2238576 2.22385763,17 2.5,17 C2.77614237,17 3,17.2238576 3,17.5 L3,19.5 C3,20.3284271 3.67157288,21 4.5,21 L6.5,21 Z M21,17.5 C21,17.2238576 21.2238576,17 21.5,17 C21.7761424,17 22,17.2238576 22,17.5 L22,19.5 C22,20.8807119 20.8807119,22 19.5,22 L17.5,22 C17.2238576,22 17,21.7761424 17,21.5 C17,21.2238576 17.2238576,21 17.5,21 L19.5,21 C20.3284271,21 21,20.3284271 21,19.5 L21,17.5 Z"/>
+</svg>
             <h2 class="text-2xl font-bold text-gray-800">QR Code Reservasi</h2>
         </div>
         

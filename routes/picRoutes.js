@@ -6,15 +6,15 @@ const { isPic } = require('../middleware/authMiddleware');
 // Semua rute di sini diproteksi untuk PIC
 router.use(isPic);
 
-// Show the PIC dashboard
-router.get('/dashboard', picController.showDashboard);
+// RUTE BARU: Halaman dasbor statistik PIC
+router.get('/dashboard', picController.showPicDashboard);
 
-// API endpoint to validate a user ID
-router.post('/api/validate-user', picController.validateUser);
+// RUTE LAMA (diganti nama): Halaman untuk melakukan alokasi
+router.get('/allocate', picController.showAllocatePage);
 
-// NEW: Process the bulk allocation
-router.post('/allocate-bulk', picController.allocateBulkBooking);
-
+// Rute lainnya tetap sama
 router.get('/history', picController.showAllocationHistory);
+router.post('/api/validate-user', picController.validateUser);
+router.post('/allocate-group', picController.allocateGroupBooking);
 
 module.exports = router;

@@ -40,6 +40,14 @@
     <% } %>
 </a>
 
+        <% if (user.role === 'USER') { %>
+                <a href="/dashboard" class="flex items-center px-3 py-2 rounded-lg transition-colors duration-200 
+                    <%= currentPath === '/dashboard' ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-gray-200' %>">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-3"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" /></svg>
+                    <span>Dashboard Saya</span>
+                </a>
+            <% } %>
+
             <hr class="my-4 border-gray-200">
 
             <% if (user.role === 'ADMIN') { %>
@@ -67,33 +75,43 @@
 
     <span>Daftar Sesi</span>
 </a>
-<a href="/admin/manage-schedule" class="flex items-center px-3 py-2 rounded-lg transition-colors duration-200 
-    <%= currentPath === '/admin/manage-schedule' ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-gray-200' %>">
+<a href="/admin/manage" class="flex items-center px-3 py-2 rounded-lg transition-colors duration-200 
+    <%= currentPath === '/admin/manage' ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-gray-200' %>">
     <svg class="w-6 h-6 mr-3 text-current" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2zM12 17v-4m0 0H8m4 0h4"/>
     </svg>
-    <span>Manage Jadwal</span>
+    <span>Kelola Jadwal</span>
 </a>
 
             <% } %>
-            <% if (user.role === 'PIC') { %>
+                        <% if (user && user.role === 'PIC') { %>
                 <a href="/pic/dashboard" class="flex items-center px-3 py-2 rounded-lg transition-colors duration-200 
-    <%= currentPath === '/pic/dashboard' ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-gray-200' %>">
-  
-  <svg class="w-6 h-6 mr-3 text-current" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-    <path d="M4,4h6v6H4V4M20,4v6H14V4h6M14,15h2V13H14V11h2v2h2V11h2v2H18v2h2v3H18v2H16V18H13v2H11V16h3V15m2,0v3h2V15H16M4,20V14h6v6H4M6,6V8H8V6H6M16,6V8h2V6H16M6,16v2H8V16H6M4,11H6v2H4V11m5,0h4v4H11V13H9V11m2-5h2v4H11V6M2,2V6H0V2A2,2,0,0,1,2,0H6V2H2M22,0a2,2,0,0,1,2,2V6H22V2H18V0h4M2,18v4H6v2H2a2,2,0,0,1-2-2V18H2m20,4V18h2v4a2,2,0,0,1-2,2H18V22Z"/>
-  </svg>
-
-  <span>PIC Dashboard</span>
-</a>
-<a href="/pic/history" class="flex items-center px-3 py-2 rounded-lg transition-colors duration-200 
-        <%= currentPath === '/pic/history' ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-gray-200' %>">
-        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
-        <span>Riwayat Alokasi</span>
-    </a>
-
+                    <%= currentPath.startsWith('/pic/dashboard') ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-gray-200' %>">
+                    <!-- Ikon Dashboard -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-3"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" /></svg>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/pic/allocate" class="flex items-center px-3 py-2 rounded-lg transition-colors duration-200 
+                    <%= currentPath.startsWith('/pic/allocate') ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-gray-200' %>">
+                    <!-- Ikon Alokasi Kuota -->
+                    <svg class="w-6 h-6 mr-3 text-current" viewBox="0 0 1024 1024" class="icon"  version="1.1" xmlns="http://www.w3.org/2000/svg"><path d="M905.92 237.76a32 32 0 0 0-52.48 36.48A416 416 0 1 1 96 512a418.56 418.56 0 0 1 297.28-398.72 32 32 0 1 0-18.24-61.44A480 480 0 1 0 992 512a477.12 477.12 0 0 0-86.08-274.24z" fill="#231815" /><path d="M630.72 113.28A413.76 413.76 0 0 1 768 185.28a32 32 0 0 0 39.68-50.24 476.8 476.8 0 0 0-160-83.2 32 32 0 0 0-18.24 61.44zM489.28 86.72a36.8 36.8 0 0 0 10.56 6.72 30.08 30.08 0 0 0 24.32 0 37.12 37.12 0 0 0 10.56-6.72A32 32 0 0 0 544 64a33.6 33.6 0 0 0-9.28-22.72A32 32 0 0 0 505.6 32a20.8 20.8 0 0 0-5.76 1.92 23.68 23.68 0 0 0-5.76 2.88l-4.8 3.84a32 32 0 0 0-6.72 10.56A32 32 0 0 0 480 64a32 32 0 0 0 2.56 12.16 37.12 37.12 0 0 0 6.72 10.56zM230.08 467.84a36.48 36.48 0 0 0 0 51.84L413.12 704a36.48 36.48 0 0 0 51.84 0l328.96-330.56A36.48 36.48 0 0 0 742.08 320l-303.36 303.36-156.8-155.52a36.8 36.8 0 0 0-51.84 0z" fill="#231815" /></svg>
+                    <span>Alokasi Kuota</span>
+                </a>
+                <a href="/pic/history" class="flex items-center px-3 py-2 rounded-lg transition-colors duration-200 
+                    <%= currentPath.startsWith('/pic/history') ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-gray-200' %>">
+                    <!-- Ikon Riwayat Alokasi -->
+<svg fill="#000000" class="w-6 h-6 mr-3 text-current" viewBox="-1 0 19 19" xmlns="http://www.w3.org/2000/svg" class="cf-icon-svg"><path d="M16.417 9.5a7.919 7.919 0 0 1-15.212 3.082A7.87 7.87 0 0 1 .584 9.5a.554.554 0 0 1 1.109 0 6.81 6.81 0 0 0 13.081 2.65 6.811 6.811 0 0 0-9.66-8.557 6.859 6.859 0 0 0-1.847 1.554h1.276a.554.554 0 0 1 0 1.108h-2.61a.554.554 0 0 1-.555-.554V3.09a.554.554 0 0 1 1.109 0v1.262A7.898 7.898 0 0 1 8.5 1.583 7.911 7.911 0 0 1 16.417 9.5zm-5.181 3a.554.554 0 0 1-.784 0l-2.42-2.42a.552.552 0 0 1-.22-.441V5.168a.554.554 0 1 1 1.11 0v4.234l2.314 2.315a.554.554 0 0 1 0 .784z"/></svg>
+                    <span>Riwayat Alokasi</span>
+                </a>
             <% } %>
             <% if (user.role === 'KIOSK') { %>
+                <a href="/kiosk/dashboard" class="flex items-center px-3 py-2 rounded-lg transition-colors duration-200 
+        <%= currentPath.startsWith('/kiosk/dashboard') ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-gray-200' %>">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-3"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" /></svg>
+        <span>Dashboard</span>
+    </a>
+
+                
                 <a href="/kiosk/checkin" class="flex items-center px-3 py-2 rounded-lg transition-colors duration-200 
                     <%= currentPath === '/kiosk/checkin' ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-gray-200' %>">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-3"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.5v15h16.5v-15H3.75zM12 9v6m-3-3h6" /></svg>

@@ -1,0 +1,43 @@
+<div class="bg-white rounded-lg shadow-md overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left">Nama Pengunjung</th>
+                    <th class="px-6 py-3 text-left">Event</th>
+                    <th class="px-6 py-3 text-left">Waktu Check-in</th>
+                    <th class="px-6 py-3 text-left">Kode Reservasi</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                <% if (checkins.length > 0) { %>
+                    <% checkins.forEach(item => { %>
+                        <tr>
+                            <td class="px-6 py-4"><%= item.user_name %></td>
+                            <td class="px-6 py-4"><%= item.event_name %></td>
+                            <td class="px-6 py-4"><%= new Date(item.checkin_time).toLocaleString('id-ID') %></td>
+                            <td class="px-6 py-4 font-mono"><%= item.reservation_code %></td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">Tidak ada data yang cocok.</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<% if (totalPages > 1) { %>
+<div class="mt-4 flex justify-center">
+    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+        <% for (let i = 1; i <= totalPages; i++) { %>
+            <a href="#" data-page="<%= i %>" class="pagination-link relative inline-flex items-center px-4 py-2 border text-sm font-medium 
+                <%= i == currentPage ? 'z-10 bg-blue-50 border-blue-500 text-blue-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50' %>">
+                <%= i %>
+            </a>
+        <% } %>
+    </nav>
+</div>
+<% } %>

@@ -55,6 +55,65 @@ exports.showHomePage = async (req, res) => {
     }
 };
 
+exports.showUserDashboard = async (req, res) => {
+    try {
+        const userId = req.session.user.id;
+
+        // --- Data untuk Kartu Statistik ---
+        const [upcoming] = await db.query("SELECT COUNT(id) as count FROM bookings WHERE user_id = ? AND status = 'CONFIRMED' AND session_id IN (SELECT id FROM sessions WHERE start_time >= NOW())", [userId]);
+        const [past] = await db.query("SELECT COUNT(id) as count FROM bookings WHERE user_id = ? AND (status = 'CHECKED_IN' OR session_id IN (SELECT id FROM sessions WHERE start_time < NOW()))", [userId]);
+        const [total] = await db.query("SELECT COUNT(id) as count FROM bookings WHERE user_id = ?", [userId]);
+        
+        const stats = {
+            upcomingBookings: upcoming[0]?.count || 0,
+            pastBookings: past[0]?.count || 0,
+            totalBookings: total[0]?.count || 0,
+        };
+
+        // --- Data untuk Chart ---
+        // 1. Chart Aktivitas Bulanan (Bar Chart)
+        const [monthlyData] = await db.query("SELECT MONTH(created_at) as month, COUNT(id) as count FROM bookings WHERE user_id = ? AND YEAR(created_at) = YEAR(CURDATE()) GROUP BY MONTH(created_at) ORDER BY month ASC", [userId]);
+        const monthlyCounts = Array(12).fill(0);
+        monthlyData.forEach(row => {
+            monthlyCounts[row.month - 1] = row.count;
+        });
+        const monthLabels = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"];
+
+        // 2. Chart Event Favorit (Pie Chart)
+        const [favoriteData] = await db.query("SELECT e.name, COUNT(b.id) as count FROM bookings b JOIN sessions s ON b.session_id = s.id JOIN events e ON s.event_id = e.id WHERE b.user_id = ? GROUP BY e.name ORDER BY count DESC LIMIT 5", [userId]);
+        const favoriteLabels = favoriteData.map(row => row.name);
+        const favoriteCounts = favoriteData.map(row => row.count);
+
+        // 3. Chart Status Booking (Doughnut Chart)
+        const [statusData] = await db.query("SELECT status, COUNT(id) as count FROM bookings WHERE user_id = ? GROUP BY status", [userId]);
+        const statusLabels = statusData.map(row => row.status);
+        const statusCounts = statusData.map(row => row.count);
+
+        res.render('user-dashboard', {
+            title: 'Dashboard Saya',
+            path: req.originalUrl,
+            stats,
+            monthlyLabels: JSON.stringify(monthLabels),
+            monthlyData: JSON.stringify(monthlyCounts),
+            favoriteLabels: JSON.stringify(favoriteLabels),
+            favoriteData: JSON.stringify(favoriteCounts),
+            statusLabels: JSON.stringify(statusLabels),
+            statusData: JSON.stringify(statusCounts)
+        });
+    } catch (error) {
+        console.error("Error fetching user dashboard data:", error);
+        // Kirim data kosong jika terjadi error
+        res.render('user-dashboard', {
+            title: 'Dashboard Saya',
+            path: req.originalUrl,
+            stats: { upcomingBookings: 0, pastBookings: 0, totalBookings: 0 },
+            monthlyLabels: '[]', monthlyData: '[]',
+            favoriteLabels: '[]', favoriteData: '[]',
+            statusLabels: '[]', statusData: '[]'
+        });
+    }
+};
+
 // Mengambil detail sesi untuk modal pop-up
 exports.getSessionDetails = async (req, res) => {
     try {

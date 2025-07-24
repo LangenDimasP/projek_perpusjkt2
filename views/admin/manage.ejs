@@ -1,0 +1,70 @@
+<%- include('../partials/header') %>
+<div class="max-w-5xl mx-auto py-8">
+    <h1 class="text-3xl font-bold mb-8 text-gray-800">Kelola Event & Sesi</h1>
+
+    <div class="space-y-8">
+        <% events.forEach(event => { %>
+            <div class="bg-white rounded-xl shadow-lg border border-gray-100">
+                <div class="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-b flex justify-between items-center rounded-t-xl">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-8 h-8 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                            </svg>
+                        <h2 class="text-2xl font-bold text-gray-800"><%= event.name %></h2>
+                    </div>
+                    <div class="flex space-x-2">
+                        <a href="/admin/event/<%= event.id %>/edit" class="inline-flex items-center px-3 py-1 text-sm font-medium text-green-700 bg-green-100 rounded hover:bg-green-200 transition">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 13l6.536-6.536a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-2.828 0L9 13z"/>
+                            </svg>
+                            Edit Event
+                        </a>
+                        <form action="/admin/event/<%= event.id %>/delete" method="POST" onsubmit="return confirm('Yakin hapus event ini? Semua sesi di dalamnya akan ikut terhapus.');">
+                            <button type="submit" class="inline-flex items-center px-3 py-1 text-sm font-medium text-red-700 bg-red-100 rounded hover:bg-red-200 transition">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                                Hapus Event
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <ul class="divide-y divide-gray-200">
+                    <% if (event.sessions.length === 0) { %>
+                        <li class="p-6 text-gray-500 text-center">Belum ada sesi pada event ini.</li>
+                    <% } %>
+                    <% event.sessions.forEach(session => { %>
+                        <li class="p-6 flex justify-between items-center hover:bg-gray-50 transition">
+                            <div>
+                                <p class="font-semibold text-lg text-indigo-700">
+                                    <svg class="inline w-5 h-5 mr-1 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                    <%= new Date(session.start_time).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) %>
+                                </p>
+                                <p class="text-sm text-gray-500 mt-1">Kuota: <span class="font-semibold text-gray-700"><%= session.total_quota %></span></p>
+                            </div>
+                            <div class="flex space-x-3">
+                                <a href="/admin/session/<%= session.session_id %>/edit" class="inline-flex items-center px-3 py-1 text-sm font-medium text-blue-700 bg-blue-100 rounded hover:bg-blue-200 transition">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536M9 13l6.536-6.536a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-2.828 0L9 13z"/>
+                                    </svg>
+                                    Edit Sesi
+                                </a>
+                                <form action="/admin/session/<%= session.session_id %>/delete" method="POST" onsubmit="return confirm('Yakin hapus sesi ini?');">
+                                    <button type="submit" class="inline-flex items-center px-3 py-1 text-sm font-medium text-red-700 bg-red-100 rounded hover:bg-red-200 transition">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                                        </svg>
+                                        Hapus Sesi
+                                    </button>
+                                </form>
+                            </div>
+                        </li>
+                    <% }) %>
+                </ul>
+            </div>
+        <% }) %>
+    </div>
+</div>
+<%- include('../partials/footer') %>

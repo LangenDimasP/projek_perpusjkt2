@@ -1,38 +1,80 @@
 <%- include('../partials/header') %>
 
 <div class="flex justify-between items-center mb-6">
-    <h1 class="text-3xl font-bold text-gray-800">Riwayat Alokasi Anda</h1>
+    <h1 class="text-3xl font-bold text-gray-800">Riwayat Alokasi Pengguna
 </div>
 
-<div class="bg-white rounded-lg shadow-md overflow-hidden">
-    <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama Pengguna</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Event</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Jadwal Sesi</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kode Reservasi</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                <% if (allocations.length > 0) { %>
-                    <% allocations.forEach(alloc => { %>
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900"><%= alloc.user_name %></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-gray-500"><%= alloc.event_name %></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-gray-500"><%= new Date(alloc.start_time).toLocaleString('id-ID') %></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-gray-500 font-mono"><%= alloc.reservation_code %></td>
-                        </tr>
-                    <% }) %>
-                <% } else { %>
-                    <tr>
-                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">Anda belum pernah mengalokasikan kuota.</td>
-                    </tr>
-                <% } %>
-            </tbody>
-        </table>
+<div class="bg-white p-4 rounded-lg shadow-md mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <input type="text" id="searchInput" placeholder="Cari Nama atau Kode..." value="<%= filters.query %>"
+               class="md:col-span-2 p-2 border rounded-md">
+        <select id="typeFilter" class="p-2 border rounded-md">
+            <option value="all" <%= filters.type === 'all' ? 'selected' : '' %>>Semua Tipe</option>
+            <option value="individual" <%= filters.type === 'individual' ? 'selected' : '' %>>Sendiri</option>
+            <option value="group" <%= filters.type === 'group' ? 'selected' : '' %>>Rombongan</option>
+        </select>
+        <input type="date" id="dateFilter" value="<%= filters.date %>" class="p-2 border rounded-md">
     </div>
 </div>
+
+<div id="history-content">
+    <%- include('./partials/history-table', { allocations, currentPage, totalPages }) %>
+</div>
+
+<script>
+    const searchInput = document.getElementById('searchInput');
+    const typeFilter = document.getElementById('typeFilter');
+    const dateFilter = document.getElementById('dateFilter');
+    const contentDiv = document.getElementById('history-content');
+
+    let debounceTimer;
+
+    function fetchHistory(page = 1) {
+        const query = searchInput.value;
+        const type = typeFilter.value;
+        const date = dateFilter.value;
+
+        // Update URL without reloading page
+        const url = new URL(window.location);
+        url.searchParams.set('page', page);
+        url.searchParams.set('query', query);
+        url.searchParams.set('type', type);
+        url.searchParams.set('date', date);
+        window.history.pushState({}, '', url);
+
+        // Fetch new content
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            contentDiv.innerHTML = html;
+        })
+        .catch(error => console.error('Error fetching history:', error));
+    }
+
+    // Debounce function to limit how often fetchHistory is called
+    function debounceFetch() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            fetchHistory(1); // Go to first page on new search/filter
+        }, 300); // 300ms delay
+    }
+
+    searchInput.addEventListener('input', debounceFetch);
+    typeFilter.addEventListener('change', debounceFetch);
+    dateFilter.addEventListener('change', debounceFetch);
+
+    // Handle pagination clicks
+    contentDiv.addEventListener('click', (e) => {
+        if (e.target.matches('.pagination-link')) {
+            e.preventDefault();
+            const page = e.target.dataset.page;
+            fetchHistory(page);
+        }
+    });
+</script>
 
 <%- include('../partials/footer') %>

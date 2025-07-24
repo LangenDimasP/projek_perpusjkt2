@@ -1,0 +1,13 @@
+<%- include('../partials/header') %>
+<%- include('../partials/back-button') %>
+<h2 class="text-3xl font-bold mb-6">Edit Event: <%= event.name %></h2>
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <form action="/admin/event/<%= event.id %>/edit" method="POST">
+        <div>
+            <label for="name">Nama Event</label>
+            <input type="text" name="name" value="<%= event.name %>" required class="w-full mt-1 ...">
+        </div>
+        <button type="submit" class="bg-green-600 ...">Simpan Perubahan</button>
+    </form>
+</div>
+<%- include('../partials/footer') %>

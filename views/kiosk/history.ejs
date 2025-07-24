@@ -1,36 +1,65 @@
 <%- include('../partials/header') %>
 
-<h1 class="text-3xl font-bold text-gray-800 mb-6">Riwayat Check-in Anda</h1>
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">Riwayat Check-in Pengunjung
+</div>
 
-<div class="bg-white rounded-lg shadow-md overflow-hidden">
-    <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama Pengunjung</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Event</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Waktu Check-in</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kode Reservasi</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                <% if (checkins.length > 0) { %>
-                    <% checkins.forEach(item => { %>
-                        <tr>
-                            <td class="px-6 py-4"><%= item.user_name %></td>
-                            <td class="px-6 py-4"><%= item.event_name %></td>
-                            <td class="px-6 py-4"><%= new Date(item.checkin_time).toLocaleString('id-ID') %></td>
-                            <td class="px-6 py-4 font-mono"><%= item.reservation_code %></td>
-                        </tr>
-                    <% }) %>
-                <% } else { %>
-                    <tr>
-                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">Anda belum melakukan check-in.</td>
-                    </tr>
-                <% } %>
-            </tbody>
-        </table>
+<div class="bg-white p-4 rounded-lg shadow-md mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <input type="text" id="searchInput" placeholder="Cari Nama atau Kode..." value="<%= filters.query %>"
+               class="md:col-span-2 p-2 border rounded-md">
+        <select id="eventFilter" class="p-2 border rounded-md">
+            <option value="all">Semua Event</option>
+            <% events.forEach(event => { %>
+                <option value="<%= event.id %>" <%= filters.eventId == event.id ? 'selected' : '' %>>
+                    <%= event.name %>
+                </option>
+            <% }) %>
+        </select>
     </div>
 </div>
+
+<div id="history-content">
+    <%- include('./partials/history-table', { checkins, currentPage, totalPages }) %>
+</div>
+
+<script>
+    const searchInput = document.getElementById('searchInput');
+    const eventFilter = document.getElementById('eventFilter');
+    const contentDiv = document.getElementById('history-content');
+
+    let debounceTimer;
+
+    function fetchHistory(page = 1) {
+        const query = searchInput.value;
+        const eventId = eventFilter.value;
+
+        const url = new URL(window.location);
+        url.searchParams.set('page', page);
+        url.searchParams.set('query', query);
+        url.searchParams.set('eventId', eventId);
+        window.history.pushState({}, '', url);
+
+        fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(response => response.text())
+        .then(html => { contentDiv.innerHTML = html; })
+        .catch(error => console.error('Error fetching history:', error));
+    }
+
+    function debounceFetch() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => fetchHistory(1), 300);
+    }
+
+    searchInput.addEventListener('input', debounceFetch);
+    eventFilter.addEventListener('change', debounceFetch);
+
+    contentDiv.addEventListener('click', (e) => {
+        if (e.target.matches('.pagination-link')) {
+            e.preventDefault();
+            fetchHistory(e.target.dataset.page);
+        }
+    });
+</script>
 
 <%- include('../partials/footer') %>
