@@ -1,9 +1,14 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/User');
 
-// Menampilkan halaman register
+// Menampilkan halaman register dengan pesan error jika ada
 exports.showRegisterPage = (req, res) => {
-    res.render('auth/register', { title: 'Register', path: req.originalUrl });
+    const { error } = req.query;
+    res.render('auth/register', { 
+        title: 'Register',
+        path: req.originalUrl,
+        error
+    });
 };
 
 // Memproses registrasi user baru
@@ -13,30 +18,36 @@ exports.registerUser = async (req, res) => {
         const existingUser = await User.findByEmail(email);
 
         if (existingUser) {
-            // Sebaiknya ada flash message di sini, untuk sekarang kita redirect saja
-            console.log('Email sudah terdaftar');
-            return res.redirect('/auth/register');
+            return res.redirect('/auth/register?error=email_exists');
         }
 
         const newUser = {
-            unique_user_id: `USR-${Date.now()}`, // ID unik sederhana
+            unique_user_id: `USR-${Date.now()}`,
             name,
             email,
             password
         };
 
         await User.create(newUser);
-        res.redirect('/auth/login');
+        // Redirect ke halaman login dengan pesan sukses
+        res.redirect('/auth/login?status=register_success');
 
     } catch (error) {
         console.error(error);
-        res.redirect('/auth/register');
+        res.redirect('/auth/register?error=server_error');
     }
 };
 
-// Menampilkan halaman login
+// Menampilkan halaman login dengan pesan sukses/error
 exports.showLoginPage = (req, res) => {
-    res.render('auth/login', { title: 'Login', path: req.originalUrl });
+    const { error, status, email } = req.query;
+    res.render('auth/login', { 
+        title: 'Login',
+        path: req.originalUrl,
+        error,
+        status,
+        email: email || '' // Kirim email kembali jika ada
+    });
 };
 
 // Memproses login
@@ -45,31 +56,43 @@ exports.loginUser = async (req, res) => {
         const { email, password } = req.body;
         const user = await User.findByEmail(email);
 
+        // Jika email tidak ditemukan
         if (!user) {
-            console.log('Email tidak ditemukan');
-            return res.redirect('/auth/login');
+            return res.redirect('/auth/login?error=email_not_found');
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
 
+        // Jika password salah
         if (!isMatch) {
-            console.log('Password salah');
-            return res.redirect('/auth/login');
+            const encodedEmail = encodeURIComponent(email);
+            return res.redirect(`/auth/login?error=password_incorrect&email=${encodedEmail}`);
         }
         
-        // Simpan data user ke session
         req.session.user = {
             id: user.id,
             name: user.name,
             role: user.role
         };
 
-        // Redirect ke dashboard (nanti dibuat) atau halaman utama
-        res.redirect('/');
+        // Arahkan ke dasbor yang sesuai setelah login
+        switch (user.role) {
+            case 'ADMIN':
+                res.redirect('/admin/dashboard');
+                break;
+            case 'PIC':
+                res.redirect('/pic/dashboard');
+                break;
+            case 'KIOSK':
+                res.redirect('/kiosk/dashboard');
+                break;
+            default:
+                res.redirect('/dashboard');
+        }
 
     } catch (error) {
         console.error(error);
-        res.redirect('/auth/login');
+        res.redirect('/auth/login?error=server_error');
     }
 };
 
@@ -79,6 +102,6 @@ exports.logoutUser = (req, res) => {
         if (err) {
             return console.error(err);
         }
-        res.redirect('/');
+        res.redirect('/auth/login');
     });
 };

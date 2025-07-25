@@ -170,13 +170,17 @@
                 <span>Tunjukkan QR code ini saat check-in</span>
             </div>
             
-            <button onclick="hideQRCodeModal()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-lg focus:outline-none focus:ring-4 focus:ring-gray-300 transition-all duration-200 flex items-center justify-center space-x-2">
-                <!-- X Icon -->
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-                <span>Tutup</span>
-            </button>
+            <div class="flex items-center space-x-3 mt-4">
+        <button id="downloadQrButton" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center space-x-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+            <span>Unduh</span>
+        </button>
+        <button onclick="hideQRCodeModal()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-lg flex items-center justify-center space-x-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            <span>Tutup</span>
+        </button>
+    </div>
+</div>
         </div>
     </div>
 </div>
@@ -209,6 +213,13 @@
         
         // Tampilkan modal
         qrCodeModal.classList.remove('hidden');
+
+        const downloadButton = document.getElementById('downloadQrButton');
+    if(downloadButton) {
+        // Hapus listener lama untuk menghindari duplikasi
+        downloadButton.onclick = null; 
+        downloadButton.onclick = () => downloadQRCode(code);
+    }
     }
 
     function hideQRCodeModal() {
@@ -222,6 +233,29 @@
             hideQRCodeModal();
         }
     });
+
+    function downloadQRCode(code) {
+    const qrCanvas = largeQRCodeContainer.querySelector('canvas');
+    if (qrCanvas) {
+        const padding = 20;
+        const paddedCanvas = document.createElement('canvas');
+        const paddedCtx = paddedCanvas.getContext('2d');
+
+        paddedCanvas.width = qrCanvas.width + padding * 2;
+        paddedCanvas.height = qrCanvas.height + padding * 2;
+
+        paddedCtx.fillStyle = '#FFFFFF';
+        paddedCtx.fillRect(0, 0, paddedCanvas.width, paddedCanvas.height);
+        paddedCtx.drawImage(qrCanvas, padding, padding);
+        
+        const link = document.createElement('a');
+        link.href = paddedCanvas.toDataURL('image/png');
+        link.download = `reservasi-${code}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+}
 </script>
 
 <%- include('partials/footer') %>

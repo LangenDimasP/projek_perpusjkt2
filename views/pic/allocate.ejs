@@ -22,7 +22,6 @@
     </div>
 </div>
 
-
 <% if (locals.error) { %>
     <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
         <p class="font-bold">Gagal Mengalokasikan:</p>
@@ -44,11 +43,11 @@
                     <h2 class="text-xl font-bold text-blue-600"><%= session.event_name %></h2>
                     <p class="text-gray-500">Sesi: <%= new Date(session.start_time).toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' }) %></p>
                     <p class="text-gray-600 mt-2">Sisa Kuota Internal: 
-                        <span class="font-bold text-green-600"><%= session.internal_quota %></span>
+                        <span class="font-bold text-green-600" id="quota-<%= session.id %>"><%= session.internal_quota %></span>
                     </p>
                 </div>
                 <hr class="my-4">
-                <form action="/pic/allocate-group" method="POST" class="space-y-4">
+                <form action="/pic/allocate-group" method="POST" class="space-y-4" id="form-<%= session.id %>">
                     <input type="hidden" name="sessionId" value="<%= session.id %>">
                     <div>
                         <label for="leaderUniqueId-<%= session.id %>" class="block font-medium text-gray-700">ID Unik Ketua Rombongan</label>
@@ -57,11 +56,19 @@
                     </div>
                     <div>
                         <label for="additionalMembers-<%= session.id %>" class="block font-medium text-gray-700">Jumlah Anggota Tambahan</label>
-                        <input type="number" id="additionalMembers-<%= session.id %>" name="additionalMembers" placeholder="Contoh: 4" min="0"
-                               class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required>
-                        <p class="text-xs text-gray-500 mt-1">Total slot yang akan digunakan: 1 (ketua) + jumlah anggota.</p>
+                        <input type="number" id="additionalMembers-<%= session.id %>" name="additionalMembers" placeholder="Contoh: 4" min="0" max="<%= session.internal_quota - 1 %>"
+                               class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required
+                               data-session-id="<%= session.id %>" data-max-quota="<%= session.internal_quota %>">
+                        <p class="text-xs text-gray-500 mt-1" id="info-<%= session.id %>">Total slot yang akan digunakan: 1 (ketua) + jumlah anggota.</p>
+                        <!-- Error message untuk kuota -->
+                        <p class="text-xs text-red-500 mt-1 hidden" id="error-<%= session.id %>">
+                            <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                            Total anggota melebihi sisa kuota internal!
+                        </p>
                     </div>
-                    <button type="submit" class="w-full bg-indigo-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-indigo-700">
+                    <button type="submit" id="submit-<%= session.id %>" class="w-full bg-indigo-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
                         Submit Rombongan
                     </button>
                 </form>
@@ -91,6 +98,42 @@
         // Arahkan browser ke URL baru, yang akan memuat ulang halaman dengan filter
         window.location.href = url.toString();
     }
+
+    // Validasi kuota untuk setiap form
+    function validateQuota(sessionId, additionalMembers, maxQuota) {
+        const totalMembers = 1 + additionalMembers; // 1 ketua + anggota tambahan
+        const infoElement = document.getElementById(`info-${sessionId}`);
+        const errorElement = document.getElementById(`error-${sessionId}`);
+        const submitButton = document.getElementById(`submit-${sessionId}`);
+        
+        if (totalMembers > maxQuota) {
+            // Tampilkan error
+            infoElement.classList.add('hidden');
+            errorElement.classList.remove('hidden');
+            submitButton.disabled = true;
+            submitButton.classList.add('bg-gray-400', 'cursor-not-allowed');
+            submitButton.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+        } else {
+            // Sembunyikan error
+            infoElement.classList.remove('hidden');
+            errorElement.classList.add('hidden');
+            submitButton.disabled = false;
+            submitButton.classList.remove('bg-gray-400', 'cursor-not-allowed');
+            submitButton.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+            
+        }
+    }
+
+    // Event listener untuk input anggota tambahan
+    document.querySelectorAll('input[name="additionalMembers"]').forEach(input => {
+        input.addEventListener('input', function() {
+            const sessionId = this.dataset.sessionId;
+            const maxQuota = parseInt(this.dataset.maxQuota);
+            const additionalMembers = parseInt(this.value) || 0;
+            
+            validateQuota(sessionId, additionalMembers, maxQuota);
+        });
+    });
 
     // Tambahkan event listener ke setiap dropdown
     eventFilter.addEventListener('change', applyFilters);
