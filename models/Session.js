@@ -53,10 +53,9 @@ class Session {
     if (month && year) {
         whereConditions.push("MONTH(s.start_time) = ? AND YEAR(s.start_time) = ?");
         params.push(month, year);
-    } else {
-        // Default jika tidak ada filter waktu
-        whereConditions.push("s.start_time >= NOW()");
     }
+    // Selalu filter sesi yang belum berakhir
+    whereConditions.push("s.end_time >= NOW()");
 
     sql += " WHERE " + whereConditions.join(" AND ");
     sql += " ORDER BY s.start_time ASC";
@@ -152,18 +151,27 @@ static async countAll(filters = {}) {
     const params = [];
     let whereConditions = [];
 
-    if (query) { /* ... (kondisi sama seperti di atas) ... */ }
-    if (eventId && eventId !== 'all') { /* ... */ }
-    if (date) { /* ... */ }
-    // (Anda bisa salin blok if dari fungsi di atas ke sini)
+    if (query) {
+        whereConditions.push("e.name LIKE ?");
+        params.push(`%${query}%`);
+    }
+    if (eventId && eventId !== 'all') {
+        whereConditions.push("e.id = ?");
+        params.push(eventId);
+    }
+    if (date) {
+        whereConditions.push("DATE(s.start_time) = ?");
+        params.push(date);
+    }
 
     if (whereConditions.length > 0) {
         sql += " WHERE " + whereConditions.join(" AND ");
     }
-    
+
     const [rows] = await db.query(sql, params);
     return rows[0].total;
 }
+
 static async getAttendeesByIdPaginated(sessionId, page = 1) {
     const limit = 10;
     const offset = (page - 1) * limit;

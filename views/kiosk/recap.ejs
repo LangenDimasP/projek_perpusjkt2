@@ -1,0 +1,87 @@
+<%- include('../partials/header') %>
+
+<div class="max-w-5xl mx-auto">
+    <h1 class="text-2xl font-bold mb-6 text-blue-700">Rekap Check-in Event</h1>
+    <div class="mb-6 flex flex-wrap gap-4 items-center">
+        <select id="eventFilter" name="eventId" class="border rounded px-3 py-2 shadow focus:ring focus:border-blue-400 transition">
+            <option value="all">Semua Event</option>
+            <% events.forEach(ev => { %>
+                <option value="<%= ev.id %>" <%= filters.eventId == ev.id ? 'selected' : '' %>><%= ev.name %></option>
+            <% }) %>
+        </select>
+        <input id="dateFilter" type="date" name="date" value="<%= filters.date %>" class="border rounded px-3 py-2 shadow focus:ring focus:border-blue-400 transition">
+        <button id="filterBtn" type="button" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition">Filter</button>
+    </div>
+    <div class="overflow-x-auto rounded-lg shadow">
+        <table class="min-w-full divide-y divide-gray-200 bg-white">
+            <thead class="bg-blue-50">
+                <tr>
+                    <th class="px-4 py-3 text-left font-semibold text-blue-800">Event</th>
+                    <th class="px-4 py-3 text-left font-semibold text-blue-800">Sesi</th>
+                    <th class="px-4 py-3 text-center font-semibold text-blue-800">Kuota Publik</th>
+                    <th class="px-4 py-3 text-center font-semibold text-blue-800">Kuota Internal</th>
+                    <th class="px-4 py-3 text-center font-semibold text-blue-800">Sudah Check-in</th>
+                    <th class="px-4 py-3 text-center font-semibold text-blue-800">Sisa Slot</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (sessions.length === 0) { %>
+                    <tr>
+                        <td colspan="6" class="px-4 py-6 text-center text-gray-500">Tidak ada data sesi untuk filter ini.</td>
+                    </tr>
+                <% } else { %>
+                    <% sessions.forEach(s => { %>
+                        <tr class="hover:bg-blue-50 transition">
+                            <td class="px-4 py-3"><%= s.event_name %></td>
+                            <td class="px-4 py-3"><%= new Date(s.start_time).toLocaleString('id-ID') %></td>
+                            <td class="px-4 py-3 text-center"><%= s.public_quota %></td>
+                            <td class="px-4 py-3 text-center"><%= s.internal_quota %></td>
+                            <td class="px-4 py-3 text-center font-bold text-green-700"><%= s.checked_in_count %> / <%= s.public_quota + s.internal_quota %></td>
+                            <td class="px-4 py-3 text-center font-bold text-red-700"><%= (s.public_quota + s.internal_quota) - s.checked_in_count %></td>
+                        </tr>
+                    <% }) %>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+
+    <% if (totalPages > 1) { %>
+    <div class="mt-6 flex justify-center">
+        <nav class="inline-flex rounded-md shadow-sm">
+            <% for (let i = 1; i <= totalPages; i++) { %>
+                <a href="/kiosk/recap?<%= 
+                    `eventId=${filters.eventId}&date=${filters.date}&page=${i}` 
+                %>" 
+                class="px-4 py-2 border text-sm font-medium rounded-l 
+                    <%= i == currentPage ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-blue-600 border-gray-300 hover:bg-blue-50' %>">
+                    <%= i %>
+                </a>
+            <% } %>
+        </nav>
+    </div>
+    <% } %>
+</div>
+
+<script>
+document.getElementById('filterBtn').addEventListener('click', function() {
+    const eventId = document.getElementById('eventFilter').value;
+    const date = document.getElementById('dateFilter').value;
+    const params = new URLSearchParams({ eventId, date });
+    window.location.href = `/kiosk/recap?${params.toString()}`;
+});
+
+document.getElementById('eventFilter').addEventListener('change', function() {
+    const eventId = this.value;
+    const date = document.getElementById('dateFilter').value;
+    const params = new URLSearchParams({ eventId, date });
+    window.location.href = `/kiosk/recap?${params.toString()}`;
+});
+document.getElementById('dateFilter').addEventListener('change', function() {
+    const eventId = document.getElementById('eventFilter').value;
+    const date = this.value;
+    const params = new URLSearchParams({ eventId, date });
+    window.location.href = `/kiosk/recap?${params.toString()}`;
+});
+</script>
+
+<%- include('../partials/footer') %>

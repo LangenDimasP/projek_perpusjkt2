@@ -60,11 +60,12 @@ exports.showSchedulesPage = async (req, res) => {
     try {
         const page = parseInt(req.query.page, 10) || 1;
         const filters = {
-    query: req.query.query || '',
-    eventId: req.query.eventId || 'all',
-    date: req.query.date || ''
-};
-
+            query: req.query.query || '',
+            eventId: req.query.eventId || 'all',
+            date: req.query.date || '',
+            page // <-- tambahkan ini!
+        };
+        
         const sessions = await Session.getPaginated(filters);
         const totalItems = await Session.countAll(filters);
         const totalPages = Math.ceil(totalItems / 8);
@@ -93,11 +94,16 @@ exports.showSchedulesPage = async (req, res) => {
 exports.showCreatePage = async (req, res) => {
     try {
         const events = await Event.getAll();
+        // Ambil pesan sukses dari query jika ada, agar hanya muncul setelah redirect
+        const success = req.query.success ? decodeURIComponent(req.query.success) : null;
+        const error = req.query.error ? decodeURIComponent(req.query.error) : null;
+
         res.render('admin/create-schedule', {
             title: 'Buat Jadwal Baru',
             events,
             path: req.originalUrl,
-            error: req.query.error ? decodeURIComponent(req.query.error) : null
+            success,
+            error
         });
     } catch (error) {
         console.error(error);
@@ -109,7 +115,7 @@ exports.showCreatePage = async (req, res) => {
 exports.createEvent = async (req, res) => {
     try {
         await Event.create(req.body);
-        res.redirect('/admin/create');
+        res.redirect('/admin/create?success=' + encodeURIComponent('Event berhasil dibuat'));
     } catch (error) {
         console.error(error);
         res.redirect('/admin/create');
@@ -153,7 +159,8 @@ exports.createSession = async (req, res) => {
         }
 
         await Session.create(sessionData);
-        res.redirect('/admin/schedules?success=session_added');
+        // Redirect ke halaman create dengan pesan sukses
+        res.redirect('/admin/create?success=' + encodeURIComponent('Sesi berhasil ditambahkan!'));
 
     } catch (error) {
         console.error(error);
@@ -214,7 +221,6 @@ exports.showSessionEditPage = async (req, res) => {
 exports.showManagePage = async (req, res) => {
     try {
         const results = await Event.getWithSessions();
-        // Logika untuk mengelompokkan sesi di bawah event
         const eventsMap = new Map();
         results.forEach(row => {
             if (!eventsMap.has(row.event_id)) {
@@ -229,11 +235,13 @@ exports.showManagePage = async (req, res) => {
             }
         });
         const eventsArray = Array.from(eventsMap.values());
+        const success = req.query.success ? decodeURIComponent(req.query.success) : null;
 
         res.render('admin/manage', {
             title: 'Kelola Jadwal',
             path: req.originalUrl,
-            events: eventsArray
+            events: eventsArray,
+            success
         });
     } catch (error) {
         console.error("Error fetching management page data:", error);
@@ -248,10 +256,12 @@ exports.showEventEditPage = async (req, res) => {
         if (!event) {
             return res.status(404).send('Event tidak ditemukan.');
         }
+        const success = req.query.success ? decodeURIComponent(req.query.success) : null;
         res.render('admin/edit-event', { 
             title: 'Edit Event', 
             path: req.originalUrl, 
-            event 
+            event,
+            success
         });
     } catch (error) {
         console.error(error);
@@ -263,7 +273,7 @@ exports.showEventEditPage = async (req, res) => {
 exports.updateEvent = async (req, res) => {
     try {
         await Event.update(req.params.id, req.body);
-        res.redirect('/admin/manage');
+        res.redirect(`/admin/event/${req.params.id}/edit?success=${encodeURIComponent('Event berhasil diperbarui!')}`);
     } catch (error) {
         console.error(error);
         res.redirect(`/admin/event/${req.params.id}/edit`);
@@ -274,7 +284,7 @@ exports.updateEvent = async (req, res) => {
 exports.deleteEvent = async (req, res) => {
     try {
         await Event.delete(req.params.id);
-        res.redirect('/admin/manage');
+        res.redirect('/admin/manage?success=' + encodeURIComponent('Event berhasil dihapus!'));
     } catch (error) {
         console.error(error);
         res.redirect('/admin/manage');
@@ -306,11 +316,21 @@ exports.showSessionEditPage = async (req, res) => {
 exports.updateSession = async (req, res) => {
     const sessionId = req.params.id;
     try {
-        // Ambil nilai kuota dari form
+        // Ambil data sesi dari database
+        const session = await Session.findById(sessionId);
+        if (!session) {
+            return res.redirect(`/admin/session/${sessionId}/edit?error=Sesi tidak ditemukan.`);
+        }
+
+        // Cek apakah waktu sekarang sudah lewat jam mulai sesi
+        const now = new Date();
+        const sessionStart = new Date(session.start_time);
+        if (now > sessionStart) {
+            return res.redirect(`/admin/session/${sessionId}/edit?error=Anda tidak bisa mengedit sesi yang sudah dimulai atau lewat waktu mulai.`);
+        }
+
         const public_quota = parseInt(req.body.public_quota) || 0;
         const internal_quota = req.body.include_internal ? (parseInt(req.body.internal_quota) || 0) : 0;
-        
-        // Hitung total kuota secara otomatis
         const total_quota = public_quota + internal_quota;
 
         const sessionData = {
@@ -320,11 +340,11 @@ exports.updateSession = async (req, res) => {
             booking_open_time: req.body.booking_open_time,
             public_quota: public_quota,
             internal_quota: internal_quota,
-            total_quota: total_quota, // Gunakan total kuota yang sudah dihitung
+            total_quota: total_quota,
         };
 
         await Session.update(sessionId, sessionData);
-        res.redirect('/admin/manage');
+        res.redirect('/admin/manage?success=' + encodeURIComponent('Sesi berhasil diperbarui!'));
     } catch (error) {
         console.error(error);
         const errorMessage = encodeURIComponent(error.message);
@@ -337,7 +357,7 @@ exports.deleteSession = async (req, res) => {
     try {
         const sessionId = req.params.id;
         await Session.delete(sessionId);
-        res.redirect('/admin/manage');
+        res.redirect('/admin/manage?success=' + encodeURIComponent('Sesi berhasil dihapus!'));
     } catch (error) {
         console.error(error);
         res.redirect('/admin/manage');

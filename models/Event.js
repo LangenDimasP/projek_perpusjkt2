@@ -50,7 +50,7 @@ class Event {
     }
     static async getFiltered(filters = {}) {
         const { eventFilter, month, year } = filters;
-
+    
         let sql = `
             SELECT 
                 e.id as event_id, e.name, e.location, e.description,
@@ -61,11 +61,9 @@ class Event {
             JOIN sessions s ON e.id = s.event_id
         `;
         const params = [];
-
-        // Gabungkan kondisi WHERE
+    
         let whereConditions = [];
-
-        // Filter berdasarkan event (Immersif atau lainnya)
+    
         if (eventFilter === 'immersif') {
             whereConditions.push("e.name = ?");
             params.push('Immersif');
@@ -73,29 +71,23 @@ class Event {
             whereConditions.push("e.name != ?");
             params.push('Immersif');
         }
-
-        // Filter berdasarkan bulan dan tahun
+    
         if (month && year) {
-            whereConditions.push("MONTH(s.start_time) = ? AND YEAR(s.start_time) = ?");
+            whereConditions.push("MONTH(s.start_time) = ? AND YEAR(s.start_time) = ? AND s.start_time >= NOW()");
             params.push(month, year);
         } else {
-            // Default jika tidak ada filter waktu: tampilkan sesi mulai hari ini
             whereConditions.push("DATE(s.start_time) >= CURDATE()");
         }
-
+    
         if (whereConditions.length > 0) {
             sql += " WHERE " + whereConditions.join(" AND ");
         }
-
+    
         sql += " ORDER BY s.start_time ASC";
-
+    
         const [rows] = await db.query(sql, params);
         return rows;
     }
-    static async update(eventId, eventData) {
-    const sql = "UPDATE events SET ? WHERE id = ?";
-    await db.query(sql, [eventData, eventId]);
-}
 
 static async delete(eventId) {
     // Deleting an event will also delete its sessions because of "ON DELETE CASCADE" in the database

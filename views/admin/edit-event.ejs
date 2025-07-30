@@ -1,13 +1,246 @@
 <%- include('../partials/header') %>
 <%- include('../partials/back-button') %>
-<h2 class="text-3xl font-bold mb-6">Edit Event: <%= event.name %></h2>
-<div class="bg-white p-6 rounded-lg shadow-md">
-    <form action="/admin/event/<%= event.id %>/edit" method="POST">
-        <div>
-            <label for="name">Nama Event</label>
-            <input type="text" name="name" value="<%= event.name %>" required class="w-full mt-1 ...">
+
+<% if (locals.success) { %>
+    <div id="success-popup" class="fixed inset-0 flex items-center justify-center z-50">
+        <div class="fixed inset-0 bg-black opacity-10 pointer-events-none"></div>
+        <div class="bg-white border border-green-300 rounded-xl shadow-lg p-6 flex flex-col items-center z-10">
+            <svg class="h-12 w-12 text-green-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <p class="text-lg font-semibold text-green-700 mb-2"><%= locals.success %></p>
+            <button id="close-success-popup" class="mt-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Tutup</button>
         </div>
-        <button type="submit" class="bg-green-600 ...">Simpan Perubahan</button>
-    </form>
+    </div>
+<% } %>
+
+<div class="max-w-4xl mx-auto py-8">
+    <!-- Header Section -->
+    <div class="mb-8">
+        <div class="flex items-center space-x-3 mb-2">
+            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 13l6.536-6.536a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-2.828 0L9 13z"/>
+            </svg>
+            <h1 class="text-3xl font-bold text-gray-800">Edit Event</h1>
+        </div>
+        <p class="text-gray-600 flex items-center space-x-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span>Perbarui informasi event: <strong class="text-blue-600"><%= event.name %></strong></span>
+        </p>
+    </div>
+
+    <!-- Form Section -->
+    <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+        <!-- Form Header -->
+        <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-100 p-6">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-green-100 rounded-lg">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Informasi Event</h2>
+                    <p class="text-sm text-gray-600">Lengkapi detail event dengan informasi yang akurat</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Body -->
+        <form action="/admin/event/<%= event.id %>/edit" method="POST" class="p-8">
+            <div class="space-y-6">
+                <!-- Nama Event -->
+                <div class="space-y-2">
+                    <label for="name" class="flex items-center text-sm font-semibold text-gray-700">
+                        <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                        </svg>
+                        Nama Event <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="name" 
+                           name="name" 
+                           value="<%= event.name %>" 
+                           required 
+                           placeholder="Masukkan nama event yang menarik"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-gray-50 focus:bg-white">
+                    <p class="text-xs text-gray-500 flex items-center">
+                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Gunakan nama yang jelas dan mudah dipahami pengunjung
+                    </p>
+                </div>
+
+                <!-- Deskripsi Event -->
+                <div class="space-y-2">
+                    <label for="description" class="flex items-center text-sm font-semibold text-gray-700">
+                        <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>
+                        </svg>
+                        Deskripsi Event
+                    </label>
+                    <textarea id="description" 
+                              name="description" 
+                              rows="4" 
+                              placeholder="Deskripsikan event secara detail untuk memberikan informasi yang jelas kepada pengunjung"
+                              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-gray-50 focus:bg-white resize-none"><%= event.description || '' %></textarea>
+                    <p class="text-xs text-gray-500 flex items-center">
+                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Jelaskan tujuan, target audience, dan hal menarik dari event ini
+                    </p>
+                </div>
+
+                <!-- Lokasi Event -->
+                <div class="space-y-2">
+                    <label for="location" class="flex items-center text-sm font-semibold text-gray-700">
+                        <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        Lokasi Event <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="location" 
+                           name="location" 
+                           value="<%= event.location %>" 
+                           required 
+                           placeholder="Contoh: Ruang Auditorium Lantai 3, Perpustakaan Jakarta"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-gray-50 focus:bg-white">
+                    <p class="text-xs text-gray-500 flex items-center">
+                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Cantumkan lokasi yang spesifik dan mudah ditemukan
+                    </p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-between pt-8 mt-8 border-t border-gray-200">
+                <div class="flex items-center space-x-2 text-sm text-gray-500">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.96-.833-2.73 0L3.084 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                    </svg>
+                    <span>* Field yang wajib diisi</span>
+                </div>
+                
+                <div class="flex space-x-3">
+                    <a href="/admin/manage" 
+                       class="px-6 py-3 text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 focus:ring-2 focus:ring-gray-300 transition-all duration-200 flex items-center space-x-2 font-medium">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        <span>Batal</span>
+                    </a>
+                    
+                    <button type="submit" 
+                            class="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 focus:ring-2 focus:ring-green-500 transition-all duration-200 flex items-center space-x-2 font-semibold shadow-lg hover:shadow-xl">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span>Simpan Perubahan</span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Info Card -->
+    <div class="mt-6 bg-blue-50 border border-blue-200 rounded-xl p-4">
+        <div class="flex items-start space-x-3">
+            <svg class="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <div>
+                <h3 class="font-semibold text-blue-800 mb-1">Tips Edit Event</h3>
+                <ul class="text-sm text-blue-700 space-y-1">
+                    <li>• Pastikan nama event mudah dipahami dan menarik</li>
+                    <li>• Berikan deskripsi yang informatif tentang kegiatan</li>
+                    <li>• Cantumkan lokasi yang spesifik untuk memudahkan pengunjung</li>
+                    <li>• Perubahan akan langsung berlaku untuk semua sesi dalam event ini</li>
+                </ul>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script>
+    // Form validation enhancement
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const name = document.getElementById('name').value.trim();
+        const location = document.getElementById('location').value.trim();
+        
+        if (!name || !location) {
+            e.preventDefault();
+            alert('Nama event dan lokasi wajib diisi!');
+            return;
+        }
+        
+        // Show loading state
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = `
+            <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>Menyimpan...</span>
+        `;
+        submitBtn.disabled = true;
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+    const closeBtn = document.getElementById('close-success-popup');
+    const popup = document.getElementById('success-popup');
+    if (closeBtn && popup) {
+        closeBtn.addEventListener('click', () => {
+            popup.style.display = 'none';
+            // Hapus query success dari URL
+            const url = new URL(window.location.href);
+            url.searchParams.delete('success');
+            window.location.replace(url.pathname + url.search);
+        });
+    }
+    });
+
+    // Auto-resize textarea
+    const textarea = document.getElementById('description');
+    textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+    });
+
+    // Character counter for inputs
+    function addCharacterCounter(inputId, maxLength = null) {
+        const input = document.getElementById(inputId);
+        const counter = document.createElement('div');
+        counter.className = 'text-xs text-gray-400 text-right mt-1';
+        
+        function updateCounter() {
+            const currentLength = input.value.length;
+            counter.textContent = maxLength ? `${currentLength}/${maxLength}` : `${currentLength} karakter`;
+            
+            if (maxLength && currentLength > maxLength * 0.9) {
+                counter.className = 'text-xs text-orange-500 text-right mt-1';
+            } else {
+                counter.className = 'text-xs text-gray-400 text-right mt-1';
+            }
+        }
+        
+        input.parentNode.appendChild(counter);
+        input.addEventListener('input', updateCounter);
+        updateCounter();
+    }
+
+    // Add character counters
+    addCharacterCounter('name', 100);
+    addCharacterCounter('description', 500);
+    addCharacterCounter('location', 100);
+</script>
+
 <%- include('../partials/footer') %>

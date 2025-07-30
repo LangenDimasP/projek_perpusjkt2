@@ -3,11 +3,17 @@
 <div class="max-w-xl mx-auto">
     <h1 class="text-3xl font-bold text-center mb-6">Pindai atau Masukkan Kode Reservasi</h1>
 
-    <% if (status === 'success') { %>
-        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6" role="alert">
-            <p class="font-bold">Check-in Berhasil!</p>
-            <p>Selamat Datang, <%= name %>!</p>
-        </div>
+<% if (status === 'success') { %>
+<div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6" role="alert">
+    <p class="font-bold">Check-in Berhasil!</p>
+    <p>
+        Selamat Datang, <%= name %>!<br>
+        Check-in di <span class="font-semibold"><%= eventName %></span>
+        sesi <span class="font-semibold"><%= sessionTime %></span> berhasil.<br>
+        Sisa kuota <span class="font-semibold"></span> yang belum check-in : 
+        <span class="font-bold text-green-800"><%= quota %></span>
+    </p>
+</div>
     <% } else if (status === 'already_checked_in') { %>
         <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6" role="alert">
             <p class="font-bold">Peringatan</p>

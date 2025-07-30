@@ -222,6 +222,76 @@ static async countByKioskId(kioskId, filters = {}) {
     const [rows] = await db.query(sql, params);
     return rows[0].total;
 }
+static async findCheckinHistoryPaginated(kioskId, filters) {
+    const { query, eventId, page } = filters;
+    const limit = 8;
+    const offset = (page - 1) * limit;
+
+    let sql = `
+        SELECT 
+            b.*, 
+            u.name AS user_name, 
+            e.name AS event_name,
+            s.public_quota, 
+            s.internal_quota,
+            b.booking_type,
+            (
+                SELECT COUNT(*) FROM bookings 
+                WHERE session_id = b.session_id 
+                AND booking_type = b.booking_type 
+                AND checkin_time IS NOT NULL
+            ) as checked_in_count
+        FROM bookings b
+        JOIN users u ON b.user_id = u.id
+        JOIN sessions s ON b.session_id = s.id
+        JOIN events e ON s.event_id = e.id
+        WHERE b.checked_in_by_kiosk_id = ?
+    `;
+    const params = [kioskId];
+
+    if (eventId && eventId !== 'all') {
+        sql += " AND e.id = ?";
+        params.push(eventId);
+    }
+
+    if (query && query.trim() !== '') {
+        sql += " AND (u.name LIKE ? OR b.reservation_code LIKE ?)";
+        params.push(`%${query}%`, `%${query}%`);
+    }
+
+    // Urutkan dari yang paling awal check-in
+    sql += " ORDER BY b.checkin_time DESC LIMIT ? OFFSET ?";
+    params.push(limit, offset);
+
+    const [rows] = await db.query(sql, params);
+    return rows;
+}
+
+static async countCheckinHistory(kioskId, filters = {}) {
+    const { query, eventId } = filters;
+    let sql = `
+        SELECT COUNT(b.id) as total
+        FROM bookings b
+        JOIN users u ON b.user_id = u.id
+        JOIN sessions s ON b.session_id = s.id
+        JOIN events e ON s.event_id = e.id
+        WHERE b.status = 'CHECKED_IN'
+          AND b.checked_in_by_kiosk_id = ?
+    `;
+    const params = [kioskId];
+
+    if (query) {
+        sql += " AND u.name LIKE ?";
+        params.push(`%${query}%`);
+    }
+    if (eventId && eventId !== 'all') {
+        sql += " AND e.id = ?";
+        params.push(eventId);
+    }
+
+    const [rows] = await db.query(sql, params);
+    return rows[0].total;
+}
 }
 
 module.exports = Booking;

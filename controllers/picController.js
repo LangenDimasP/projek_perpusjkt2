@@ -247,10 +247,8 @@ exports.allocateGroupBooking = async (req, res) => {
             throw new Error('Jumlah rombongan melebihi sisa kuota internal.');
         }
 
-        // Kurangi kuota internal
         await Session.decrementInternalQuota(sessionId, groupSize, connection);
 
-        // Buat booking dan tangkap kode reservasinya
         const reservationCode = await Booking.create({
             session_id: sessionId,
             user_id: leader.id,
@@ -259,21 +257,19 @@ exports.allocateGroupBooking = async (req, res) => {
             group_size: groupSize
         }, connection);
 
-        // --- TAMBAHAN: BUAT NOTIFIKASI UNTUK KETUA ROMBONGAN ---
         await Notification.create({
             user_id: leader.id,
             message: `Anda telah didaftarkan sebagai ketua rombongan (${groupSize} orang) untuk event "${session.event_name}".`,
             link: '/history'
         });
-        // --- SELESAI ---
 
         await connection.commit();
-        res.redirect('/pic/dashboard?success=true');
-
+        // Redirect ke halaman allocate dengan pesan sukses
+        res.redirect(`/pic/allocate?success=Rombongan berhasil dialokasikan!`);
     } catch (error) {
         await connection.rollback();
         console.error("Group allocation failed:", error);
-        res.redirect(`/pic/dashboard?error=${encodeURIComponent(error.message)}`);
+        res.redirect(`/pic/allocate?error=${encodeURIComponent(error.message)}`);
     } finally {
         connection.release();
     }

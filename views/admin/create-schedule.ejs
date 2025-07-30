@@ -15,6 +15,19 @@
     </div>
 <% } %>
 
+<% if (locals.success) { %>
+    <div id="success-popup" class="fixed inset-0 flex items-center justify-center z-50">
+        <div class="fixed inset-0 bg-black opacity-40 pointer-events-none"></div>
+        <div class="bg-white border border-green-300 rounded-xl shadow-lg p-6 flex flex-col items-center z-10">
+            <svg class="h-12 w-12 text-green-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <p class="text-lg font-semibold text-green-700 mb-2"><%= locals.success %></p>
+            <button id="close-success-popup" class="mt-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Tutup</button>
+        </div>
+    </div>
+<% } %>
+
 <div class="space-y-8">
     <!-- Header Section -->
         <div class="flex items-center space-x-4">
@@ -258,6 +271,20 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        // --- Success Pop Up ---
+        const closeBtn = document.getElementById('close-success-popup');
+        const popup = document.getElementById('success-popup');
+        if (closeBtn && popup) {
+            closeBtn.addEventListener('click', () => {
+                popup.style.display = 'none';
+                // Hapus query success dari URL
+                const url = new URL(window.location.href);
+                url.searchParams.delete('success');
+                window.location.replace(url.pathname + url.search); // reload tanpa success
+            });
+        }
+
+        // --- Kuota Internal ---
         const checkbox = document.getElementById('include_internal');
         const wrapper = document.getElementById('internal_quota_wrapper');
         const totalQuotaInput = document.getElementById('total_quota');

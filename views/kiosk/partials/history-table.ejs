@@ -7,24 +7,45 @@
                     <th class="px-6 py-3 text-left">Event</th>
                     <th class="px-6 py-3 text-left">Waktu Check-in</th>
                     <th class="px-6 py-3 text-left">Kode Reservasi</th>
+                    <th class="px-6 py-3 text-left">Jumlah Orang</th>
+                    <th class="px-6 py-3 text-left">Kuota Terisi</th> <!-- Kolom baru -->
                 </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                <% if (checkins.length > 0) { %>
-                    <% checkins.forEach(item => { %>
-                        <tr>
-                            <td class="px-6 py-4"><%= item.user_name %></td>
-                            <td class="px-6 py-4"><%= item.event_name %></td>
-                            <td class="px-6 py-4"><%= new Date(item.checkin_time).toLocaleString('id-ID') %></td>
-                            <td class="px-6 py-4 font-mono"><%= item.reservation_code %></td>
-                        </tr>
-                    <% }) %>
-                <% } else { %>
-                    <tr>
-                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">Tidak ada data yang cocok.</td>
-                    </tr>
-                <% } %>
-            </tbody>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <% if (checkins.length > 0) { 
+                                let posisiMap = {};
+                                // Hitung total per sesi-tipe
+                                let totalPerKey = {};
+                                checkins.forEach(item => {
+                                    let key = item.session_id + '-' + item.booking_type;
+                                    if (!totalPerKey[key]) totalPerKey[key] = 0;
+                                    totalPerKey[key]++;
+                                });
+                                // Reverse agar posisi dari bawah ke atas
+                                checkins.forEach((item, idx) => {
+                                    let key = item.session_id + '-' + item.booking_type;
+                                    if (!posisiMap[key]) posisiMap[key] = totalPerKey[key];
+                                    else posisiMap[key]--;
+                                    let posisiCheckin = posisiMap[key];
+                                    let totalQuota = item.booking_type === 'PUBLIC' ? item.public_quota : item.internal_quota;
+                            %>
+                                <tr>
+                                    <td class="px-6 py-4"><%= item.user_name %></td>
+                                    <td class="px-6 py-4"><%= item.event_name %></td>
+                                    <td class="px-6 py-4"><%= new Date(item.checkin_time).toLocaleString('id-ID') %></td>
+                                    <td class="px-6 py-4 font-mono"><%= item.reservation_code %></td>
+                                    <td class="px-6 py-4"><%= item.group_size || 1 %></td>
+                                    <td class="px-6 py-4">
+                                        <%= posisiCheckin %> / <%= totalQuota %>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">Tidak ada data yang cocok.</td>
+                                </tr>
+                            <% } %>
+                        </tbody>
         </table>
     </div>
 </div>

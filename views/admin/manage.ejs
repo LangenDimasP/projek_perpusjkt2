@@ -1,4 +1,31 @@
 <%- include('../partials/header') %>
+<% if (locals.success) { %>
+    <div id="success-popup" class="fixed inset-0 flex items-center justify-center z-50">
+        <div class="fixed inset-0 bg-black opacity-10 pointer-events-none"></div>
+        <div class="bg-white border border-green-300 rounded-xl shadow-lg p-6 flex flex-col items-center z-10">
+            <svg class="h-12 w-12 text-green-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <p class="text-lg font-semibold text-green-700 mb-2"><%= locals.success %></p>
+            <button id="close-success-popup" class="mt-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Tutup</button>
+        </div>
+    </div>
+<% } %>
+
+<!-- Modal Konfirmasi Hapus -->
+<div id="confirm-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-30">
+    <div class="bg-white rounded-xl shadow-xl p-8 flex flex-col items-center max-w-sm w-full border border-gray-200">
+        <svg class="h-12 w-12 text-red-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+        <p id="confirm-message" class="text-lg font-semibold text-gray-800 mb-4 text-center"></p>
+        <div class="flex space-x-4">
+            <button id="confirm-cancel" type="button" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium">Batal</button>
+            <button id="confirm-yes" type="button" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium">Ya, Hapus</button>
+        </div>
+    </div>
+</div>
+
 <div class="max-w-5xl mx-auto py-8">
     <h1 class="text-3xl font-bold mb-8 text-gray-800">Kelola Event & Sesi</h1>
 
@@ -8,8 +35,8 @@
                 <div class="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-b flex justify-between items-center rounded-t-xl">
                     <div class="flex items-center space-x-3">
                         <svg class="w-8 h-8 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                            </svg>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                        </svg>
                         <h2 class="text-2xl font-bold text-gray-800"><%= event.name %></h2>
                     </div>
                     <div class="flex space-x-2">
@@ -19,7 +46,7 @@
                             </svg>
                             Edit Event
                         </a>
-                        <form action="/admin/event/<%= event.id %>/delete" method="POST" onsubmit="return confirm('Yakin hapus event ini? Semua sesi di dalamnya akan ikut terhapus.');">
+                        <form class="delete-event-form" data-event="<%= event.id %>" action="/admin/event/<%= event.id %>/delete" method="POST">
                             <button type="submit" class="inline-flex items-center px-3 py-1 text-sm font-medium text-red-700 bg-red-100 rounded hover:bg-red-200 transition">
                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
@@ -51,7 +78,7 @@
                                     </svg>
                                     Edit Sesi
                                 </a>
-                                <form action="/admin/session/<%= session.session_id %>/delete" method="POST" onsubmit="return confirm('Yakin hapus sesi ini?');">
+                                <form class="delete-session-form" data-session="<%= session.session_id %>" action="/admin/session/<%= session.session_id %>/delete" method="POST">
                                     <button type="submit" class="inline-flex items-center px-3 py-1 text-sm font-medium text-red-700 bg-red-100 rounded hover:bg-red-200 transition">
                                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
@@ -67,4 +94,64 @@
         <% }) %>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Success Pop Up
+    const closeBtn = document.getElementById('close-success-popup');
+    const popup = document.getElementById('success-popup');
+    if (closeBtn && popup) {
+        closeBtn.addEventListener('click', () => {
+            popup.style.display = 'none';
+            const url = new URL(window.location.href);
+            url.searchParams.delete('success');
+            window.location.replace(url.pathname + url.search);
+        });
+    }
+
+    // Modal Konfirmasi Hapus
+    const modal = document.getElementById('confirm-modal');
+    const message = document.getElementById('confirm-message');
+    const cancelBtn = document.getElementById('confirm-cancel');
+    const yesBtn = document.getElementById('confirm-yes');
+    let formToSubmit = null;
+
+    // Event: Hapus Event
+    document.querySelectorAll('.delete-event-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            formToSubmit = form;
+            message.textContent = 'Yakin hapus event ini? Semua sesi di dalamnya akan ikut terhapus.';
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        });
+    });
+
+    // Event: Hapus Sesi
+    document.querySelectorAll('.delete-session-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            formToSubmit = form;
+            message.textContent = 'Yakin hapus sesi ini?';
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        });
+    });
+
+    // Cancel
+    cancelBtn.addEventListener('click', () => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        formToSubmit = null;
+    });
+
+    // Yes, Hapus
+    yesBtn.addEventListener('click', () => {
+        if (formToSubmit) formToSubmit.submit();
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        formToSubmit = null;
+    });
+});
+</script>
 <%- include('../partials/footer') %>

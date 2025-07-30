@@ -1,7 +1,7 @@
 <%- include('../partials/header') %>
 
 <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-    <h1 class="text-3xl font-bold text-gray-800">PIC Dashboard</h1>
+    <h1 class="text-3xl font-bold text-gray-800">PIC Alokasi</h1>
     <div class="flex items-center space-x-2 mt-4 md:mt-0">
         <select id="eventFilter" class="p-2 border border-gray-300 rounded-md bg-white shadow-sm">
             <option value="immersif" <%= currentFilter === 'immersif' ? 'selected' : '' %>>Immersif</option>
@@ -31,7 +31,7 @@
 <% if (locals.success) { %>
      <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6" role="alert">
         <p class="font-bold">Alokasi Berhasil!</p>
-        <p>Rombongan telah berhasil didaftarkan.</p>
+        <p><%= locals.success %></p>
     </div>
 <% } %>
 
@@ -53,6 +53,8 @@
                         <label for="leaderUniqueId-<%= session.id %>" class="block font-medium text-gray-700">ID Unik Ketua Rombongan</label>
                         <input type="text" id="leaderUniqueId-<%= session.id %>" name="leaderUniqueId" placeholder="Pindai atau masukkan ID" 
                                class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required>
+                        <p class="text-sm text-green-700 mt-2 hidden" id="leaderPreview-<%= session.id %>"></p>
+                        <p class="text-sm text-red-600 mt-2 hidden" id="leaderPreviewError-<%= session.id %>"></p>
                     </div>
                     <div>
                         <label for="additionalMembers-<%= session.id %>" class="block font-medium text-gray-700">Jumlah Anggota Tambahan</label>
@@ -125,15 +127,35 @@
     }
 
     // Event listener untuk input anggota tambahan
-    document.querySelectorAll('input[name="additionalMembers"]').forEach(input => {
-        input.addEventListener('input', function() {
-            const sessionId = this.dataset.sessionId;
-            const maxQuota = parseInt(this.dataset.maxQuota);
-            const additionalMembers = parseInt(this.value) || 0;
-            
-            validateQuota(sessionId, additionalMembers, maxQuota);
+    document.querySelectorAll('input[name="leaderUniqueId"]').forEach(input => {
+    input.addEventListener('change', function() {
+        const sessionId = this.id.split('-')[1];
+        const preview = document.getElementById(`leaderPreview-${sessionId}`);
+        const previewError = document.getElementById(`leaderPreviewError-${sessionId}`);
+        const uniqueId = this.value.trim();
+
+        preview.classList.add('hidden');
+        previewError.classList.add('hidden');
+
+        if (uniqueId.length < 6) return; // minimal validasi
+
+        fetch('/pic/preview-leader', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ uniqueId })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                preview.textContent = `Nama Ketua: ${data.name}`;
+                preview.classList.remove('hidden');
+            } else {
+                previewError.textContent = 'ID tidak ditemukan!';
+                previewError.classList.remove('hidden');
+            }
         });
     });
+});
 
     // Tambahkan event listener ke setiap dropdown
     eventFilter.addEventListener('change', applyFilters);

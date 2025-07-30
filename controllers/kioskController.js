@@ -5,52 +5,67 @@ const db = require('../config/db');
 
 exports.showCheckinPage = (req, res) => {
     // Ambil status dari query URL untuk menampilkan pesan
-    const { status, name, code } = req.query;
+    const { status, name, code, quota, eventName, sessionTime, quotaType } = req.query;
     res.render('kiosk/checkin', {
         title: 'Kiosk Check-in',
         status,
         name,
         code,
-        path: req.originalUrl// Tambahkan path untuk navigasi
+        quota,
+        eventName,
+        sessionTime,
+        quotaType, // <-- tambahkan ini
+        path: req.originalUrl
     });
 };
 
 exports.processCheckin = async (req, res) => {
     try {
         const { reservationCode } = req.body;
-        const kioskId = req.session.user.id; // Ambil ID Kiosk dari session
-        const result = await Booking.findByCodeAndCheckIn(reservationCode, kioskId); // Kirim ID Kiosk
+        const kioskId = req.session.user.id;
+        const result = await Booking.findByCodeAndCheckIn(reservationCode, kioskId);
 
-        if (result.status === 'success') {
+        let remainingQuota = null;
+        let eventName = '';
+        let sessionTime = '';
+        let quotaType = '';
+        if (result.status === 'success' && result.booking) {
+            const sessionId = result.booking.session_id;
+            const bookingType = result.booking.booking_type; // 'PUBLIC' atau 'INTERNAL'
+            quotaType = bookingType === 'PUBLIC' ? 'Publik' : 'Internal';
+
+            // Ambil total kuota dari session
+            const [session] = await db.query('SELECT public_quota, internal_quota, start_time, event_id FROM sessions WHERE id = ?', [sessionId]);
+            // Ambil total kuota dari session
+            let totalQuota = bookingType === 'PUBLIC' ? session[0]?.public_quota : session[0]?.internal_quota;
+            
+            // Hitung jumlah booking yang BELUM check-in untuk sesi dan tipe booking ini
+            const [countResult] = await db.query(
+                "SELECT COUNT(*) as notCheckedIn FROM bookings WHERE session_id = ? AND booking_type = ? AND checkin_time IS NULL AND status != 'CANCELLED'",
+                [sessionId, bookingType]
+            );
+            const notCheckedIn = countResult[0]?.notCheckedIn || 0;
+            remainingQuota = notCheckedIn;
+            if (remainingQuota < 0) remainingQuota = 0;
+
+            sessionTime = session[0]?.start_time ? new Date(session[0].start_time).toLocaleString('id-ID') : '';
+            const [event] = await db.query('SELECT name FROM events WHERE id = ?', [session[0].event_id]);
+            eventName = event[0]?.name || '';
             await Notification.create({
-                user_id: result.booking.user_id, // Ambil user_id dari hasil check-in
+                user_id: result.booking.user_id,
                 message: `Tiket Anda (${reservationCode}) berhasil di-scan untuk check-in.`,
                 link: '/history'
             });
         }
 
-        // Redirect kembali ke halaman check-in dengan membawa hasil
-        res.redirect(`/kiosk/checkin?status=${result.status}&name=${encodeURIComponent(result.name || '')}&code=${reservationCode}`);
+        res.redirect(`/kiosk/checkin?status=${result.status}&name=${encodeURIComponent(result.name || '')}&code=${reservationCode}&quota=${remainingQuota}&eventName=${encodeURIComponent(eventName)}&sessionTime=${encodeURIComponent(sessionTime)}&quotaType=${encodeURIComponent(quotaType)}`);
 
     } catch (error) {
         console.error(error);
         res.redirect(`/kiosk/checkin?status=error`);
     }
 };
-exports.showCheckinHistory = async (req, res) => {
-    try {
-        const kioskId = req.session.user.id;
-        const checkins = await Booking.findByKioskId(kioskId);
-        res.render('kiosk/history', {
-            title: 'Riwayat Check-in',
-            path: req.originalUrl,
-            checkins
-        });
-    } catch (error) {
-        console.error("Failed to fetch Kiosk history:", error);
-        res.status(500).send("Server Error");
-    }
-};
+
 exports.showCheckinHistory = async (req, res) => {
     try {
         const kioskId = req.session.user.id;
@@ -61,19 +76,20 @@ exports.showCheckinHistory = async (req, res) => {
             page: page
         };
 
-        const checkins = await Booking.findByKioskIdPaginated(kioskId, filters);
-        const totalItems = await Booking.countByKioskId(kioskId, filters);
+        // Ambil data check-in, pastikan group_size ikut diambil
+        const checkins = await Booking.findCheckinHistoryPaginated(kioskId, filters);
+        const totalItems = await Booking.countCheckinHistory(kioskId, filters);
         const totalPages = Math.ceil(totalItems / 8);
-        const events = await Event.getAll(); // Ambil semua event untuk filter
+        const events = await Event.getAll();
 
-        // Jika ini adalah permintaan AJAX (dari script), kirim hanya tabelnya
+        // Jika permintaan AJAX, render hanya tabelnya
         if (req.headers['x-requested-with'] === 'XMLHttpRequest') {
             return res.render('kiosk/partials/history-table', { 
                 checkins, currentPage: page, totalPages 
             });
         }
         
-        // Render halaman lengkap saat pertama kali dibuka
+        // Render halaman lengkap
         res.render('kiosk/history', {
             title: 'Riwayat Check-in',
             path: req.originalUrl,
@@ -144,5 +160,79 @@ exports.showKioskDashboard = async (req, res) => {
             eventLabels: '[]', eventData: '[]',
             typeLabels: '[]', typeData: '[]', // Tambahkan ini
         });
+    }
+};
+exports.showCheckinRecap = async (req, res) => {
+    try {
+        const { eventId = 'all', date = '', page = 1 } = req.query;
+        const limit = 10;
+        const offset = (parseInt(page, 10) - 1) * limit;
+
+        // Ambil semua event untuk filter
+        const events = await Event.getAll();
+
+        // Query total sesi untuk pagination
+        let countSql = `
+            SELECT COUNT(*) as total
+            FROM sessions s
+            JOIN events e ON s.event_id = e.id
+            WHERE 1=1
+        `;
+        const countParams = [];
+        if (eventId !== 'all') {
+            countSql += ' AND e.id = ?';
+            countParams.push(eventId);
+        }
+        if (date) {
+            countSql += ' AND DATE(s.start_time) = ?';
+            countParams.push(date);
+        }
+        const [countRows] = await db.query(countSql, countParams);
+        const totalItems = countRows[0]?.total || 0;
+        const totalPages = Math.ceil(totalItems / limit);
+
+        // Query sesi & rekap check-in (paginated)
+        let sql = `
+            SELECT 
+                s.id as session_id,
+                s.start_time,
+                s.public_quota,
+                s.internal_quota,
+                e.id as event_id,
+                e.name as event_name,
+                (
+                    SELECT COUNT(*) FROM bookings 
+                    WHERE session_id = s.id AND checkin_time IS NOT NULL AND status != 'CANCELLED'
+                ) as checked_in_count
+            FROM sessions s
+            JOIN events e ON s.event_id = e.id
+            WHERE 1=1
+        `;
+        const params = [];
+        if (eventId !== 'all') {
+            sql += ' AND e.id = ?';
+            params.push(eventId);
+        }
+        if (date) {
+            sql += ' AND DATE(s.start_time) = ?';
+            params.push(date);
+        }
+        sql += ' ORDER BY s.start_time DESC LIMIT ? OFFSET ?';
+        params.push(limit, offset);
+
+        const [sessions] = await db.query(sql, params);
+
+        res.render('kiosk/recap', {
+            title: 'Rekap Check-in Event',
+            path: req.originalUrl,
+            events,
+            sessions,
+            filters: { eventId, date },
+            currentPage: parseInt(page, 10),
+            totalPages
+        });
+    } catch (error) {
+        console.error("Failed to fetch check-in recap:", error);
+        res.status(500).send("Server Error");
     }
 };

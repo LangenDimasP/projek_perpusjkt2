@@ -5,7 +5,7 @@ const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
 const dbPool = require('./config/db');
 const Notification = require('./models/Notification');
-const { startInternalQuotaJob } = require('./cron-jobs');
+const { startScheduledJobs } = require('./cron-jobs');
 const methodOverride = require('method-override');
 
 // Import all route files
@@ -76,9 +76,8 @@ app.use('/', indexRoutes);
 // Start Server
 app.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);
-
-    startInternalQuotaJob();
-});
+    startScheduledJobs();
+})
 
 
 

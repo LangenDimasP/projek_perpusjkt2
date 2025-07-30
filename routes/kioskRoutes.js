@@ -10,5 +10,6 @@ router.get('/dashboard', kioskController.showKioskDashboard);
 router.get('/checkin', kioskController.showCheckinPage);
 router.post('/checkin', kioskController.processCheckin);
 router.get('/history', kioskController.showCheckinHistory);
+router.get('/recap', kioskController.showCheckinRecap);
 
 module.exports = router;
