@@ -33,21 +33,20 @@ exports.processCheckin = async (req, res) => {
             const sessionId = result.booking.session_id;
             const bookingType = result.booking.booking_type; // 'PUBLIC' atau 'INTERNAL'
             quotaType = bookingType === 'PUBLIC' ? 'Publik' : 'Internal';
-
+        
             // Ambil total kuota dari session
             const [session] = await db.query('SELECT public_quota, internal_quota, start_time, event_id FROM sessions WHERE id = ?', [sessionId]);
-            // Ambil total kuota dari session
-            let totalQuota = bookingType === 'PUBLIC' ? session[0]?.public_quota : session[0]?.internal_quota;
+            let totalQuota = (session[0]?.public_quota || 0) + (session[0]?.internal_quota || 0);
             
-            // Hitung jumlah booking yang BELUM check-in untuk sesi dan tipe booking ini
+            // Hitung jumlah booking yang SUDAH check-in untuk seluruh sesi (semua tipe booking)
             const [countResult] = await db.query(
-                "SELECT COUNT(*) as notCheckedIn FROM bookings WHERE session_id = ? AND booking_type = ? AND checkin_time IS NULL AND status != 'CANCELLED'",
-                [sessionId, bookingType]
+                "SELECT COUNT(*) as checkedIn FROM bookings WHERE session_id = ? AND checkin_time IS NOT NULL AND status != 'CANCELLED'",
+                [sessionId]
             );
-            const notCheckedIn = countResult[0]?.notCheckedIn || 0;
-            remainingQuota = notCheckedIn;
+            const checkedIn = countResult[0]?.checkedIn || 0;
+            remainingQuota = totalQuota - checkedIn;
             if (remainingQuota < 0) remainingQuota = 0;
-
+        
             sessionTime = session[0]?.start_time ? new Date(session[0].start_time).toLocaleString('id-ID') : '';
             const [event] = await db.query('SELECT name FROM events WHERE id = ?', [session[0].event_id]);
             eventName = event[0]?.name || '';

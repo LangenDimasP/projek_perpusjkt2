@@ -16,6 +16,10 @@ class User {
             newUser.role || 'USER'
         ]);
     }
+    static async updatePassword(id, hashedPassword) {
+        const sql = 'UPDATE users SET password = ? WHERE id = ?';
+        await db.query(sql, [hashedPassword, id]);
+    }
 
     static async findByEmail(email) {
         const sql = 'SELECT * FROM users WHERE email = ?';
@@ -24,7 +28,7 @@ class User {
     }
 
     static async findById(id) {
-        const sql = 'SELECT id, unique_user_id, name, email, role FROM users WHERE id = ?';
+        const sql = 'SELECT id, unique_user_id, name, email, role, password FROM users WHERE id = ?';
         const [rows] = await db.query(sql, [id]);
         return rows[0];
     }

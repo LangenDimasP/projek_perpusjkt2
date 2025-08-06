@@ -15,6 +15,7 @@ const picRoutes = require('./routes/picRoutes');
 const kioskRoutes = require('./routes/kioskRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const indexRoutes = require('./routes/index');
+const profileRoutes = require('./routes/profileRoutes');
 
 dotenv.config();
 
@@ -68,6 +69,7 @@ app.use('/admin', adminRoutes);
 app.use('/pic', picRoutes);
 app.use('/kiosk', kioskRoutes);
 app.use('/notifications', notificationRoutes);
+app.use('/profile', profileRoutes);
 
 // The general homepage route is LAST
 app.use('/', indexRoutes); 

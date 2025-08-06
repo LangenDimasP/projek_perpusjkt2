@@ -59,8 +59,17 @@
                     <div>
                         <label for="additionalMembers-<%= session.id %>" class="block font-medium text-gray-700">Jumlah Anggota Tambahan</label>
                         <input type="number" id="additionalMembers-<%= session.id %>" name="additionalMembers" placeholder="Contoh: 4" min="0" max="<%= session.internal_quota - 1 %>"
-                               class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required
-                               data-session-id="<%= session.id %>" data-max-quota="<%= session.internal_quota %>">
+                            class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required
+                            data-session-id="<%= session.id %>" data-max-quota="<%= session.internal_quota %>">
+                        <% if (session.internal_quota === 1) { %>
+                            <p class="text-xs text-blue-600 mt-1">Hanya ketua rombongan yang bisa dialokasikan untuk sesi ini.</p>
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    document.getElementById('additionalMembers-<%= session.id %>').value = 0;
+                                    document.getElementById('additionalMembers-<%= session.id %>').setAttribute('readonly', true);
+                                });
+                            </script>
+                        <% } %>
                         <p class="text-xs text-gray-500 mt-1" id="info-<%= session.id %>">Total slot yang akan digunakan: 1 (ketua) + jumlah anggota.</p>
                         <!-- Error message untuk kuota -->
                         <p class="text-xs text-red-500 mt-1 hidden" id="error-<%= session.id %>">
