@@ -48,7 +48,7 @@ class Event {
         const [rows] = await db.query(sql);
         return rows;
     }
-    static async getFiltered(filters = {}) {
+       static async getFiltered(filters = {}) {
         const { eventFilter, month, year } = filters;
     
         let sql = `
@@ -64,6 +64,7 @@ class Event {
     
         let whereConditions = [];
     
+        // Filter event
         if (eventFilter === 'immersif') {
             whereConditions.push("e.name = ?");
             params.push('Immersif');
@@ -72,12 +73,14 @@ class Event {
             params.push('Immersif');
         }
     
+        // Filter bulan dan tahun
         if (month && year) {
-            whereConditions.push("MONTH(s.start_time) = ? AND YEAR(s.start_time) = ? AND s.start_time >= NOW()");
+            whereConditions.push("MONTH(s.start_time) = ? AND YEAR(s.start_time) = ?");
             params.push(month, year);
-        } else {
-            whereConditions.push("DATE(s.start_time) >= CURDATE()");
         }
+    
+        // Filter sesi yang belum berakhir
+        whereConditions.push("s.end_time >= NOW()");
     
         if (whereConditions.length > 0) {
             sql += " WHERE " + whereConditions.join(" AND ");

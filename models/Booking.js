@@ -228,25 +228,26 @@ static async findCheckinHistoryPaginated(kioskId, filters) {
     const offset = (page - 1) * limit;
 
     let sql = `
-        SELECT 
-            b.*, 
-            u.name AS user_name, 
-            e.name AS event_name,
-            s.public_quota, 
-            s.internal_quota,
-            b.booking_type,
-            (
-                SELECT COUNT(*) FROM bookings 
-                WHERE session_id = b.session_id 
-                AND booking_type = b.booking_type 
-                AND checkin_time IS NOT NULL
-            ) as checked_in_count
-        FROM bookings b
-        JOIN users u ON b.user_id = u.id
-        JOIN sessions s ON b.session_id = s.id
-        JOIN events e ON s.event_id = e.id
-        WHERE b.checked_in_by_kiosk_id = ?
-    `;
+    SELECT 
+        b.*, 
+        u.name AS user_name, 
+        e.name AS event_name,
+        s.public_quota, 
+        s.internal_quota,
+        s.total_quota,        
+        b.booking_type,
+        (
+            SELECT COUNT(*) FROM bookings 
+            WHERE session_id = b.session_id 
+            AND booking_type = b.booking_type 
+            AND checkin_time IS NOT NULL
+        ) as checked_in_count
+    FROM bookings b
+    JOIN users u ON b.user_id = u.id
+    JOIN sessions s ON b.session_id = s.id
+    JOIN events e ON s.event_id = e.id
+    WHERE b.checked_in_by_kiosk_id = ?
+`;
     const params = [kioskId];
 
     if (eventId && eventId !== 'all') {

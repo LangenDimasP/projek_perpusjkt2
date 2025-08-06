@@ -197,10 +197,11 @@ exports.showCheckinRecap = async (req, res) => {
                 s.start_time,
                 s.public_quota,
                 s.internal_quota,
+                s.total_quota,
                 e.id as event_id,
                 e.name as event_name,
                 (
-                    SELECT COUNT(*) FROM bookings 
+                    SELECT IFNULL(SUM(group_size), 0) FROM bookings 
                     WHERE session_id = s.id AND checkin_time IS NOT NULL AND status != 'CANCELLED'
                 ) as checked_in_count
             FROM sessions s

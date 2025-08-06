@@ -36,8 +36,12 @@
                             <td class="px-4 py-3"><%= new Date(s.start_time).toLocaleString('id-ID') %></td>
                             <td class="px-4 py-3 text-center"><%= s.public_quota %></td>
                             <td class="px-4 py-3 text-center"><%= s.internal_quota %></td>
-                            <td class="px-4 py-3 text-center font-bold text-green-700"><%= s.checked_in_count %> / <%= s.public_quota + s.internal_quota %></td>
-                            <td class="px-4 py-3 text-center font-bold text-red-700"><%= (s.public_quota + s.internal_quota) - s.checked_in_count %></td>
+                            <td class="px-4 py-3 text-center font-bold text-green-700">
+                                <%= s.checked_in_count %> / <%= s.total_quota %>
+                            </td>
+                            <td class="px-4 py-3 text-center font-bold text-red-700">
+                                <%= s.total_quota - s.checked_in_count %>
+                            </td>
                         </tr>
                     <% }) %>
                 <% } %>

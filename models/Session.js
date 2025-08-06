@@ -204,6 +204,46 @@ static async delete(sessionId) {
     const sql = "DELETE FROM sessions WHERE id = ?";
     await db.query(sql, [sessionId]);
 }
+
+static async getRecapSessions(filters = {}) {
+    const { eventId, date, page = 1 } = filters;
+    const limit = 8;
+    const offset = (page - 1) * limit;
+
+    let sql = `
+        SELECT 
+            s.id as session_id,
+            s.start_time,
+            s.public_quota,
+            s.internal_quota,
+            s.total_quota,
+            e.id as event_id,
+            e.name as event_name,
+            (
+                SELECT COUNT(*) FROM bookings 
+                WHERE session_id = s.id AND checkin_time IS NOT NULL AND status != 'CANCELLED'
+            ) as checked_in_count
+        FROM sessions s
+        JOIN events e ON s.event_id = e.id
+        WHERE 1=1
+    `;
+    const params = [];
+
+    if (eventId && eventId !== 'all') {
+        sql += " AND e.id = ?";
+        params.push(eventId);
+    }
+    if (date) {
+        sql += " AND DATE(s.start_time) = ?";
+        params.push(date);
+    }
+
+    sql += " ORDER BY s.start_time DESC LIMIT ? OFFSET ?";
+    params.push(limit, offset);
+
+    const [rows] = await db.query(sql, params);
+    return rows;
+}
 }
 
 

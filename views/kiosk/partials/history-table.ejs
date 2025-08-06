@@ -14,19 +14,16 @@
                         <tbody class="bg-white divide-y divide-gray-200">
                             <% if (checkins.length > 0) { 
                                 let posisiMap = {};
-                                // Hitung total per sesi-tipe
                                 let totalPerKey = {};
+                                let akumulasiCheckin = {};
                                 checkins.forEach(item => {
                                     let key = item.session_id + '-' + item.booking_type;
-                                    if (!totalPerKey[key]) totalPerKey[key] = 0;
-                                    totalPerKey[key]++;
+                                    if (!akumulasiCheckin[key]) akumulasiCheckin[key] = 0;
+                                    akumulasiCheckin[key] += item.group_size || 1;
                                 });
-                                // Reverse agar posisi dari bawah ke atas
                                 checkins.forEach((item, idx) => {
                                     let key = item.session_id + '-' + item.booking_type;
-                                    if (!posisiMap[key]) posisiMap[key] = totalPerKey[key];
-                                    else posisiMap[key]--;
-                                    let posisiCheckin = posisiMap[key];
+                                    let posisiCheckin = akumulasiCheckin[key];
                                     let totalQuota = item.booking_type === 'PUBLIC' ? item.public_quota : item.internal_quota;
                             %>
                                 <tr>
@@ -36,7 +33,11 @@
                                     <td class="px-6 py-4 font-mono"><%= item.reservation_code %></td>
                                     <td class="px-6 py-4"><%= item.group_size || 1 %></td>
                                     <td class="px-6 py-4">
-                                        <%= posisiCheckin %> / <%= totalQuota %>
+                                        <% if (item.total_quota) { %>
+                                            <%= posisiCheckin %> / <%= item.total_quota %>
+                                        <% } else { %>
+                                            <%= posisiCheckin %> / <span class="text-red-500">?</span>
+                                        <% } %>
                                     </td>
                                 </tr>
                             <% }) %>
